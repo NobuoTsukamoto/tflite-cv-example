@@ -22,23 +22,27 @@ import edgetpu.classification.engine
 import cv2
 import PIL
 
-sys.path.append(os.pardir)
+from utils import visualization as visual
 
 WINDOW_NAME = 'Edge TPU Image classification'
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-      '--model', help='File path of Tflite model.', required=True)
+            '--model', help='File path of Tflite model.', required=True)
     parser.add_argument(
-      '--label', help='File path of label file.', required=True)
-    parser.add_argument('--top_k', help=")
+            '--label', help='File path of label file.', required=True)
+    parser.add_argument(
+            '--top_k', help="keep top k candidates.", default=3)
+    parser.add_argument(
+            '--width', help="Resolution width.", default=640)
+    parser.add_argument(
+            '--height', help="Resolution height.", default=480)
     args = parser.parse_args()
 
     with open(args.label, 'r') as f:
         pairs = (l.strip().split(maxsplit=1) for l in f.readlines())
         labels = dict((int(k), v) for k, v in pairs)
-
 
     # Initialize window.
     cv2.namedWindow(WINDOW_NAME)
@@ -47,8 +51,8 @@ def main():
     # Initialize engine.
     engine = edgetpu.classification.engine.ClassificationEngine(args.model)
 
-    width = 640
-    height = 480
+    width = args.width
+    height = args.height
     elapsed_list = []
     with picamera.PiCamera() as camera:
         camera.resolution = (width, height)
@@ -70,7 +74,7 @@ def main():
                 input_buf = PIL.Image.fromarray(image)
 
                 start_ms = time.time()
-                results = engine.ClassifyWithImage(input_buf, top_k=3)
+                results = engine.ClassifyWithImage(input_buf, top_k=args.top_k)
                 elapsed_ms = time.time() - start_ms
 
                 # Check result.
@@ -79,7 +83,7 @@ def main():
                         label = '{0} ({1:.2f})'.format(
                             labels[results[i][0]], results[i][1])
                         pos = 60 + (i * 30)
-                        draw_caption(im, (10, pos), label)
+                        visual.draw_caption(im, (10, pos), label)
 
                 # Calc fps.
                 fps = 1 / elapsed_ms
@@ -95,8 +99,8 @@ def main():
                 # Display fps
                 fps_text = '{0:.2f}ms, {1:.2f}fps'.format(
                         (elapsed_ms * 1000.0), fps)
-                draw_caption(im, (10, 30), fps_text + avg_text)
-                
+                visual.draw_caption(im, (10, 30), fps_text + avg_text)
+
                  # display
                 cv2.imshow(WINDOW_NAME, im)
                 if cv2.waitKey(10) & 0xFF == ord('q'):
@@ -104,7 +108,6 @@ def main():
 
         finally:
             camera.stop_preview()
-
 
 if __name__ == '__main__':
     main()
