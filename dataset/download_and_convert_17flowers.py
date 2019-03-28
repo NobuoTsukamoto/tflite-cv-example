@@ -293,7 +293,7 @@ def main():
     labels_to_class_names = dict(zip(range(len(CLASS_NAMES)), CLASS_NAMES))
     _write_label_file(labels_to_class_names, args.dataset_dir)
 
-    # _clean_up_temporary_files(args.dataset_dir)
+    _clean_up_temporary_files(args.dataset_dir)
     print('\nFinished converting the 17 Flowers dataset!')
 
 if __name__ == '__main__':
