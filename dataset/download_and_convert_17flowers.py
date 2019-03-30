@@ -79,29 +79,34 @@ def _get_filenames_and_classes(dataset_dir, is_data_augmentation=False):
     """
     flower_root = os.path.join(dataset_dir, 'jpg')
 
+    # Move files by category.
     files = glob.glob(os.path.join(flower_root, '*.jpg'))
     files.sort()
 
     par_category = 80
     photo_filename = []
     for i, class_name in enumerate(CLASS_NAMES):
-        direcotry = os.path.join(dataset_dir, class_name)
-        os.mkdir(direcotry)
+        directory = os.path.join(dataset_dir, class_name)
+        os.mkdir(directory)
         for j in range(par_category):
             index = (par_category * i) + j
-            shutil.move(files[index], direcotry)
-            file_path = os.path.join(direcotry, os.path.basename(files[index]))
-            photo_filename.append(file_path)
+            shutil.move(files[index], directory)
 
             # Data augmantation.
             if is_data_augmentation:
+                file_path = os.path.join(directory, os.path.basename(files[index]))
                 im = Image.open(file_path)
                 mirror_im = ImageOps.mirror(im)
-                flip_path = os.path.join(direcotry,
+                flip_path = os.path.join(directory,
                         os.path.splitext(os.path.basename(files[index]))[0] + '_flip.jpg')
                 mirror_im.save(flip_path)
-                photo_filename.append(flip_path)
 
+    # Add photo filename list.
+    for class_name in CLASS_NAMES:
+        directory = os.path.join(dataset_dir, class_name)
+        for file_name in os.listdir(directory):
+            file_path = os.path.join(directory, file_name)
+            photo_filename.append(file_path)
 
     return photo_filename, sorted(CLASS_NAMES)
 
@@ -109,7 +114,7 @@ def _get_dataset_filename(dataset_dir, split_name, shard_id):
     """ Return TF-Recode file name.
 
     Args:
-        dataset_dir: dataset direcotry.
+        dataset_dir: dataset directory.
         split_name: train or validation.
         shard_id: id.
     Returns:
@@ -260,6 +265,7 @@ def _write_label_file(labels_to_class_names, dataset_dir, filename='labels.txt')
         for label in labels_to_class_names:
             class_name = labels_to_class_names[label]
             f.write('%d:%s\n' % (label, class_name))
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', help='Path to dataset dir.')
@@ -280,8 +286,11 @@ def main():
     # Divide into train and test.
     random.seed(_RANDOM_SEED)
     random.shuffle(photo_file_names)
-    training_file_names = photo_file_names[_NUM_VALIDATION:]
-    validation_file_names = photo_file_names[:_NUM_VALIDATION]
+    num_split = _NUM_VALIDATION
+    if args.flip:
+        num_split = _NUM_VALIDATION * 2
+    training_file_names = photo_file_names[num_split:]
+    validation_file_names = photo_file_names[:num_split]
 
     # First, convert the training and validation sets.
     _conver_dataset('train', training_file_names, class_names_to_ids,
