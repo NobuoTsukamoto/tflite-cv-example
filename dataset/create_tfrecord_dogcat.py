@@ -168,7 +168,6 @@ def _conver_dataset(split_name, file_names, class_names_to_ids, dataset_dir):
                         sys.stdout.flush()
 
                         # Read the file name.
-                        print(file_names[i])
                         image_data = tf.gfile.GFile(file_names[i], 'rb').read()
                         height, width = image_reader.read_image_dims(sess, image_data)
 
