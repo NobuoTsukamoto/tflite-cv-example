@@ -84,11 +84,13 @@ def _get_filenames_and_classes(dataset_dir, num_train=2000):
 
     photo_filenames = []
     for directory in directories:
-        for i, filename in enumerate(os.listdir(directory)):
-            path = os.path.join(directory, filename)
+        files = os.listdir(directory)
+        random.seed(_RANDOM_SEED)
+        random.shuffle(files)
+
+        for i in range(0, num_train):
+            path = os.path.join(directory, files[i])
             photo_filenames.append(path)
-            if i > num_train:
-                break
 
     return photo_filenames, sorted(class_names)
 
@@ -285,6 +287,9 @@ def main():
     num_split = _NUM_VALIDATION
     training_file_names = photo_file_names[num_split:]
     validation_file_names = photo_file_names[:num_split]
+
+    print('train num : ', len(training_file_names))
+    print('val num   : ', len(validation_file_names))
 
     # First, convert the training and validation sets.
     _conver_dataset('train', training_file_names, class_names_to_ids,
