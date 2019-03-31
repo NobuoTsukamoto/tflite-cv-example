@@ -32,8 +32,11 @@ from PIL import Image, ImageOps
 from six.moves import urllib
 import tensorflow as tf
 
+# The nunber of images in the train set.
+_NUM_TRAIN = 2000
+
 # The number of images in the validation set.
-_NUM_VALIDATION = 350
+_NUM_VALIDATION = 500
 
 # Seed for repeatability.
 _RANDOM_SEED = 0
@@ -61,12 +64,12 @@ class ImageReader(object):
         return image
 
 
-def _get_filenames_and_classes(dataset_dir, is_data_augmentation=False):
+def _get_filenames_and_classes(dataset_dir, num_train=2000):
     """ Returns a dictionary of file names and inferred class names.
 
     Args:
         dataset_dir: A directory containing a JPG encoded images.
-        is_data_augmantation: If True, Image data augmantation. flip image horizontal
+        num_train: The nunber of images in the train set.
     Returns:
         A dictionary of class names and file paths and representing class names.
     """
@@ -84,7 +87,7 @@ def _get_filenames_and_classes(dataset_dir, is_data_augmentation=False):
         for i, filename in enumerate(os.listdir(directory)):
             path = os.path.join(directory, filename)
             photo_filenames.append(path)
-            if i > 2000:
+            if i > num_train:
                 break
 
     return photo_filenames, sorted(class_names)
@@ -191,7 +194,7 @@ def _clean_up_temporary_files(dataset_dir):
     file_path = os.path.join(dataset_dir, 'train.zip')
     tf.gfile.Remove(file_path)
 
-    file_path = os.path.join(dataset_dir, 'sample_submission.csv'
+    file_path = os.path.join(dataset_dir, 'sample_submission.csv')
     tf.gfile.Remove(file_path)
 
     tmp_dir = os.path.join(dataset_dir, 'train')
