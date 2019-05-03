@@ -11,6 +11,7 @@ FROM tensorflow/tensorflow:1.13.1-gpu-py3
 # the files inside the container)
 RUN apt-get update && \
     apt-get install -y wget git
+RUN pip install pillow
 
 # Get the tensorflow models research directory, and move it into tensorflow
 # source folder to match recommendation of installation
