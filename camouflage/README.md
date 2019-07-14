@@ -1,4 +1,4 @@
-# Edge TPU Camoulage PyCamera
+# Edge TPU Camouflage PyCamera
 
 ![Image](g3doc/img/output.gif)
 
