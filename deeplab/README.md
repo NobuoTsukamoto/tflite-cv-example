@@ -1,4 +1,4 @@
-# Edge TPU DeepLabv3
+# Edge TPU Semantic Segmentation using DeepLabv3
 
 ![Image](g3doc/img/output.gif)
 
@@ -18,7 +18,7 @@ Be careful with the compiler and library versions. Previous versions do not work
 # Limitations
 - Labels only Pascal VOC label format.
 
-# PiCamera Segmantation Example
+# PiCamera Semantic Segmentation  Example
 Run Pi Camera stream.
 
 ## Usaege
@@ -32,7 +32,7 @@ or<br>
 - width:  Width of the frames in the camera stream.
 - height: Height of the frames int the camera stream.
 
-# Image Segmantation Example
+# Image Semantic Segmentation Example
 Run single image. The segmentation image is saved to "save.png".
 
 ## Usaege
