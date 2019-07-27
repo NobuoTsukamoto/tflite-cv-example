@@ -4,11 +4,13 @@
 
 # Models
 Please check this [link (Quantize DeepLab model for faster on-device inference)](https://github.com/tensorflow/models/blob/master/research/deeplab/g3doc/quantize.md) for details.<br>
-There is an Edge TPU Model compiled from a pre-trained model. Models are in the **models** folder.<br>
+There is an Edge TPU Model compiled from a pre-trained model. Models are in the **models** folder.
+
 Edge TPU Model name                                 | TF-Lite Model(pre-trainded)
 ----------------------------------------------------|-------------------------------------------
 deeplabv3_mnv2_dm05_pascal_trainaug_edgetpu.tflite  | [mobilenetv2_dm05_coco_voc_trainaug_8bit](http://download.tensorflow.org/models/deeplabv3_mnv2_dm05_pascal_train_aug_8bit_2019_04_26.tar.gz)
 deeplabv3_mnv2_pascal_train_aug_edgetpu.tflite      | [mobilenetv2_coco_voc_trainaug_8bit](http://download.tensorflow.org/models/deeplabv3_mnv2_pascal_train_aug_8bit_2019_04_26.tar.gz)
+
 
 # Note
 Be careful with the compiler and library versions. Previous versions do not work properly.
