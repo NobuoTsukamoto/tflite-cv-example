@@ -21,6 +21,7 @@ import cv2
 import picamera
 from edgetpu.basic.basic_engine import BasicEngine
 from picamera.array import PiRGBArray
+from utils import label_util
 from utils import visualization as visual
 
 WINDOW_NAME = "Edge TPU Segmentation"
@@ -52,48 +53,6 @@ LABEL_NAMES = np.asarray(
 )
 
 
-def create_pascal_label_colormap():
-    """ Creates a label colormap used in PASCAL VOC segmentation benchmark.
-
-    Returns:
-        A Colormap for visualizing segmentation results.
-    """
-    colormap = np.zeros((256, 3), dtype=np.uint8)
-    ind = np.arange(256, dtype=np.uint8)
-
-    for shift in reversed(range(8)):
-        for channel in range(3):
-            colormap[:, channel] |= ((ind >> channel) & 1) << shift
-        ind >>= 3
-    return colormap
-
-
-def label_to_color_image(label):
-    """ Adds color defined by the dataset colormap to the label.
-
-    Args:
-        label: A 2D array with integer type, storing the segmentation label.
-
-    Returns:
-        result: A 2D array with floating type. The element of the array
-            is the color indexed by the corresponding element in the input label
-            to the PASCAL color map.
-
-    Raises:
-        ValueError: If label is not of rank 2 or its value is larger than color
-            map maximum entry.
-    """
-    if label.ndim != 2:
-        raise ValueError("Expect 2-D input label")
-
-    colormap = create_pascal_label_colormap()
-
-    if np.max(label) >= len(colormap):
-        raise ValueError("label value too large.")
-
-    return colormap[label]
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
@@ -111,7 +70,7 @@ def main():
 
     # Initialize colormap
     FULL_LABEL_MAP = np.arange(len(LABEL_NAMES)).reshape(len(LABEL_NAMES), 1)
-    FULL_COLOR_MAP = label_to_color_image(FULL_LABEL_MAP)
+    FULL_COLOR_MAP = label_util.label_to_color_image(FULL_LABEL_MAP)
 
     # Initialize engine.
     engine = BasicEngine(args.model)
@@ -150,7 +109,7 @@ def main():
                 # Create segmentation map
                 seg_map = np.array(result, dtype=np.uint8)
                 seg_map = np.reshape(seg_map, (width, height))
-                seg_image = label_to_color_image(seg_map)
+                seg_image = label_util.label_to_color_image(seg_map)
                 # segmentation map resize 513, 513 => camera resolution(640, 480)
                 seg_image = cv2.resize(seg_image, (resolution_width, rezolution_height))
                 out_image = image // 2 + seg_image // 2

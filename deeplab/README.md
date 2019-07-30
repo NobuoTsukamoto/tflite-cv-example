@@ -20,7 +20,7 @@ Be careful with the compiler and library versions. Previous versions do not work
 # Limitations
 - Labels only Pascal VOC label format.
 
-# PiCamera Semantic Segmentation  Example
+# PiCamera Semantic Segmentation Example
 Run Pi Camera stream.
 
 ## Usaege
@@ -41,3 +41,10 @@ Run single image. The segmentation image is saved to "save.png".
 ``` $ python3 ./deeplab_image.py --model=./model/deeplabv3_mnv2_dm05_pascal_trainaug_edgetpu.tflite --image=<PATH_TO_IMAGE_FILE>```<br>
 or<br>
 ``` $ python3 ./deeplab_image.py --model=./model/deeplabv3_mnv2_pascal_train_aug_edgetpu.tflite --image=<PATH_TO_IMAGE_FILE>```<br>
+
+# With Jetson Nano + PiCamera
+Opencv VideoCapture With Gstreamer V4L2.<br>
+It works around 4 FPS (deeplabv3_mnv2_dm05_pascal_trainaug_edgetpu.tflite).
+
+## Usaege
+``` $ python3 ./deeplab_videocapture.py --model=<PATH_TO_MODEL_FILE> --nano```<br>
