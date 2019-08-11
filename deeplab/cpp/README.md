@@ -2,7 +2,7 @@
 
 This example performs segmentation with the TensorFlow Lite C++ API using the given deeplabv3 model, and OpenCV VideoCapture IF.
 
-# Reference
+## Reference
 - [Google Coral Edge TPU with C++ on Jetson Nano](https://qiita.com/iwatake2222/items/3a09a2d26b022a5a8a95)
 - [Build TensorFlow Lite for ARM64 boards](https://www.tensorflow.org/lite/guide/build_arm64)
 - [Coral EdgeTPU C++ API overview](https://coral.withgoogle.com/docs/edgetpu/api-cpp/)
