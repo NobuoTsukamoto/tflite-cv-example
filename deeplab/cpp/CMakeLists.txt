@@ -46,9 +46,18 @@ add_executable(edge_tpu_deeplabv3 deeplab.cpp utils.cpp)
 # Link your application with OpenCV libraries
 target_link_libraries(edge_tpu_deeplabv3 LINK_PRIVATE ${OpenCV_LIBS})
 
+EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE)
+message(STATUS "Architecture: ${ARCHITECTURE}")
+
 # Link your application with Tensorflow Lite
-target_link_libraries(edge_tpu_deeplabv3 LINK_PRIVATE ${CMAKE_SOURCE_DIR}/lib/libtensorflow-lite.a)
-target_link_libraries(edge_tpu_deeplabv3 LINK_PRIVATE ${CMAKE_SOURCE_DIR}/edgetpu-native/libedgetpu/libedgetpu_arm64.so)
+if( ${ARCHITECTURE} STREQUAL "armv7l" )
+    target_link_libraries(edge_tpu_deeplabv3 LINK_PRIVATE ${CMAKE_SOURCE_DIR}/lib/libtensorflow-lite_arm32.a)
+    target_link_libraries(edge_tpu_deeplabv3 LINK_PRIVATE ${CMAKE_SOURCE_DIR}/edgetpu-native/libedgetpu/libedgetpu_arm32.so)
+else()
+    target_link_libraries(edge_tpu_deeplabv3 LINK_PRIVATE ${CMAKE_SOURCE_DIR}/lib/libtensorflow-lite_arm64.a)
+    target_link_libraries(edge_tpu_deeplabv3 LINK_PRIVATE ${CMAKE_SOURCE_DIR}/edgetpu-native/libedgetpu/libedgetpu_arm64.so)
+endif()
+
 
 # target_link_libraries(edge_tpu_deeplabv3 Threads::Threads)
 find_library(LIBRT rt)

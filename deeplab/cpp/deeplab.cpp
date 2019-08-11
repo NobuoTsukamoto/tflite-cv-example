@@ -112,7 +112,9 @@ int main(int argc, char *argv[])
         "{n thread |1   | num of thread to set tf-lite interpreter.}"
         "{W width  |640 | camera resolution width.}"
         "{H height |480 | camera resolution height.}"
-        "{i info   |    | display Inference fps.}";
+        "{i info   |    | display Inference fps.}"
+        "{s src    |nano| videocapture source. "
+        "nano: jetson nano camera, pi: raspberry pi picamera. other: video file path}";
 
   cv::CommandLineParser parser(argc, argv, keys);
   if (parser.has("help"))
@@ -126,6 +128,7 @@ int main(int argc, char *argv[])
   auto height = parser.get<int>("height");
   auto num_of_threads = parser.get<unsigned int>("thread");
   auto is_display_inference_fps = false;
+  auto video_src = parser.get<std::string>("src");
   if (parser.has("info"))
   {
     is_display_inference_fps = true;
@@ -136,6 +139,7 @@ int main(int argc, char *argv[])
   std::cout << "height: " << height << std::endl;
   std::cout << "threads: " << num_of_threads << std::endl;
   std::cout << "info: " << std::boolalpha << is_display_inference_fps << std::endl;
+  std::cout << "src: " << video_src << std::endl;
 
   // Window setting
   auto window_name = "Edge TPU Segmantation cpp demo.";
@@ -191,11 +195,28 @@ int main(int argc, char *argv[])
     "! video/x-raw, width=" << width << ", height=" << height <<
     "! videoconvert  ! appsink";
   */
-  gst_string_stream << "nvarguscamerasrc ! video/x-raw(memory:NVMM), "
-    "width=" << width << ", height=" << height << ", format=(string)NV12, "
-    "framerate=(fraction)30/1 ! nvvidconv flip-method=2 !  video/x-raw, "
-    "width=(int)" << width << ", height=(int)" << height << ", format=(string)BGRx ! "
-    "videoconvert ! appsink";
+  if (video_src == "nano")
+  {
+    gst_string_stream << "nvarguscamerasrc ! video/x-raw(memory:NVMM), "
+      "width=" << width << ", height=" << height << ", format=(string)NV12, "
+      "framerate=(fraction)30/1 ! nvvidconv flip-method=2 !  video/x-raw, "
+      "width=(int)" << width << ", height=(int)" << height << ", format=(string)BGRx ! "
+      "videoconvert ! appsink";
+  }
+  else if (video_src == "pi")
+  {
+    gst_string_stream << "4l2src device=/dev/video0 ! video/x-raw, "
+      "width=" << width << ", height=" << height << ", format=(string)NV12 "
+      // "framerate=(fraction)30/1 !videoscale ! video/x-raw, "
+      " ! videoscale ! video/x-raw, "
+      // "width=(int)" << width << ", height=(int)" << height << ", format=(string)BGRx ! "
+      "width=(int)" << width << ", height=(int)" << height << " ! "
+      "videoconvert ! appsink";
+  }
+  else
+  {
+    gst_string_stream << video_src;
+  }
   cv::VideoCapture cap(gst_string_stream.str());
 
   // video capture.
@@ -203,7 +224,7 @@ int main(int argc, char *argv[])
   std::vector<double> fps;
   auto is_display_label_im = false;
 
-  std::cout << "Start capture." << std::endl;
+  std::cout << "Start capture." << " isOpened: " << std::boolalpha << cap.isOpened() << std::endl;
   while(cap.isOpened())
   {
     const auto& start_time = std::chrono::steady_clock::now();
@@ -276,6 +297,7 @@ int main(int argc, char *argv[])
       is_display_label_im = !is_display_label_im;
     }
   }
+  std::cout << "finished capture." << std::endl;
 
   cv::destroyAllWindows();
 
