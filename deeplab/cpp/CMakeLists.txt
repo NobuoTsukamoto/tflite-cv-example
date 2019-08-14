@@ -41,7 +41,7 @@ message(STATUS "    libraries: ${OpenCV_LIBS}")
 message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
 # Declare the executable target built from your sources
-add_executable(edge_tpu_deeplabv3 deeplab.cpp utils.cpp)
+add_executable(edge_tpu_deeplabv3 deeplab.cpp utils.cpp deeplab_engine.cpp)
 
 # Link your application with OpenCV libraries
 target_link_libraries(edge_tpu_deeplabv3 LINK_PRIVATE ${OpenCV_LIBS})
@@ -60,6 +60,7 @@ endif()
 
 
 # target_link_libraries(edge_tpu_deeplabv3 Threads::Threads)
+
 find_library(LIBRT rt)
 if(LIBRT)
   target_link_libraries(edge_tpu_deeplabv3 LINK_PRIVATE ${LIBRT})

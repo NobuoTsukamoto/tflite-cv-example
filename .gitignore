@@ -1,0 +1,3 @@
+.vscode/settings.json
+deeplab/model/deeplabv3_mnv2_dm05_pascal_trainaug.tflite
+deeplab/model/deeplabv3_mnv2_pascal_train_aug.tflite
