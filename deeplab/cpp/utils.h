@@ -19,4 +19,10 @@ extern double CalcAverage(const std::vector<double>& array);
 extern void LabelToColorMap(const std::vector<float>& result,
                      const std::vector<cv::Scalar>& color_map,
                      cv::Mat& seg_im);
+
+extern void LabelMaskImage(const std::vector<float>& result,
+                const int input_label,
+                const cv::Mat& input_im,
+                cv::Mat& mask_im);
+
 #endif /* UTILS_H_ */

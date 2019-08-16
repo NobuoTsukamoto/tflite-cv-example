@@ -83,3 +83,23 @@ void LabelToColorMap(const std::vector<float>& result,
   }
   cv::cvtColor(seg_im, seg_im, cv::COLOR_RGB2BGR);
 }
+
+void LabelMaskImage(const std::vector<float>& result,
+                const int input_label,
+                const cv::Mat& input_im,
+                cv::Mat& mask_im)
+{
+  for (int y = 0; y < mask_im.rows; y++)
+  {
+    auto *src = &mask_im.at<unsigned char>(y, 0);
+    for (int x = 0; x < mask_im.cols; x++)
+    {
+      auto label = (int)result[(mask_im.rows * y) + x];
+      if (label == input_label)
+      {
+        *src = 255;
+      }
+      src++;
+    }
+  }
+}
