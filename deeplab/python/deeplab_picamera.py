@@ -69,20 +69,18 @@ def main():
     cv2.moveWindow(WINDOW_NAME, 100, 200)
 
     # Initialize colormap
-    FULL_LABEL_MAP = np.arange(len(LABEL_NAMES)).reshape(len(LABEL_NAMES), 1)
-    FULL_COLOR_MAP = label_util.label_to_color_image(FULL_LABEL_MAP)
+    colormap = label_util.create_pascal_label_colormap()
 
     # Initialize engine.
     engine = BasicEngine(args.model)
 
-    is_inpaint_mode = False
     resolution_width = args.width
     rezolution_height = args.height
     with picamera.PiCamera() as camera:
 
         camera.resolution = (resolution_width, rezolution_height)
         camera.framerate = 30
-        _, width, height, channels = engine.get_input_tensor_shape()
+        _, width, height, _ = engine.get_input_tensor_shape()
         rawCapture = PiRGBArray(camera)
 
         # allow the camera to warmup
@@ -109,7 +107,7 @@ def main():
                 # Create segmentation map
                 seg_map = np.array(result, dtype=np.uint8)
                 seg_map = np.reshape(seg_map, (width, height))
-                seg_image = label_util.label_to_color_image(seg_map)
+                seg_image = label_util.label_to_color_image(colormap, seg_map)
                 # segmentation map resize 513, 513 => camera resolution(640, 480)
                 seg_image = cv2.resize(seg_image, (resolution_width, rezolution_height))
                 out_image = image // 2 + seg_image // 2

@@ -28,10 +28,11 @@ def create_pascal_label_colormap():
     return colormap
 
 
-def label_to_color_image(label):
+def label_to_color_image(colormap, label):
     """ Adds color defined by the dataset colormap to the label.
 
     Args:
+        colormap: A Colormap for visualizing segmentation results.
         label: A 2D array with integer type, storing the segmentation label.
 
     Returns:
@@ -46,9 +47,7 @@ def label_to_color_image(label):
     if label.ndim != 2:
         raise ValueError('Expect 2-D input label')
 
-    colormap = create_pascal_label_colormap()
-
-    if np.max(label) >= len(colormap):
+     if np.max(label) >= len(colormap):
         raise ValueError('label value too large.')
 
     return colormap[label]

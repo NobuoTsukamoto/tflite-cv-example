@@ -58,8 +58,8 @@ def main():
     #    '--label', help='File path of label file.', required=True)
     args = parser.parse_args()
 
-    FULL_LABEL_MAP = np.arange(len(LABEL_NAMES)).reshape(len(LABEL_NAMES), 1)
-    FULL_COLOR_MAP = label_util.label_to_color_image(FULL_LABEL_MAP)
+    # Initialize colormap
+    colormap = label_util.create_pascal_label_colormap()
 
     # Read image
     org_img = Image.open(args.image)
@@ -75,7 +75,7 @@ def main():
     seg_map = np.array(result, dtype=np.uint8)
     seg_map = np.reshape(seg_map, (width, height))
 
-    seg_image = label_util.label_to_color_image(seg_map)
+    seg_image = label_util.label_to_color_image(colormap, seg_map)
     seg_image = Image.fromarray(seg_image).resize((im_width, im_height), Image.NEAREST)
     out_image = np.array(org_img) * 0.5 + np.array(seg_image) * 0.5
 

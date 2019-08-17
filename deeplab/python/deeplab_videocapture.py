@@ -68,12 +68,11 @@ def main():
     cv2.moveWindow(WINDOW_NAME, 100, 200)
 
     # Initialize colormap
-    FULL_LABEL_MAP = np.arange(len(LABEL_NAMES)).reshape(len(LABEL_NAMES), 1)
-    FULL_COLOR_MAP = label_util.label_to_color_image(FULL_LABEL_MAP)
+    colormap = label_util.create_pascal_label_colormap()
 
     # Initialize engine.
     engine = BasicEngine(args.model)
-    _, width, height, channels = engine.get_input_tensor_shape()
+    _, width, height, _ = engine.get_input_tensor_shape()
 
     if args.nano == True:
         GST_STR = 'nvarguscamerasrc \
@@ -105,7 +104,7 @@ def main():
         # Create segmentation map
         seg_map = np.array(result, dtype=np.uint8)
         seg_map = np.reshape(seg_map, (width, height))
-        seg_image = label_util.label_to_color_image(seg_map)
+        seg_image = label_util.label_to_color_image(colormap, seg_map)
 
         # segmentation map resize 513, 513 => camera resolution
         seg_image = cv2.resize(seg_image, (args.width, args.height))
