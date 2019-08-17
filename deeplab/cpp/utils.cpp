@@ -103,3 +103,30 @@ void LabelMaskImage(const std::vector<float>& result,
     }
   }
 }
+
+void RandamMaskImage(const std::vector<float>& result,
+                     const int input_label,
+                     const cv::Mat& input_im,
+                     cv::RNG& rng,
+                     cv::Mat& randam_im,
+                     cv::Mat& mask_im)
+{
+  for (int y = 0; y < mask_im.rows; y++)
+  {
+    auto *mask = &mask_im.at<unsigned char>(y, 0);
+    auto *randam = &randam_im.at<cv::Vec4b>(y, 0);
+    for (int x = 0; x < mask_im.cols; x++)
+    {
+      auto label = (int)result[(mask_im.rows * y) + x];
+      if (label == input_label)
+      {
+        *mask = 255;
+        (*randam)[0] = rng.uniform(0, 255);
+        (*randam)[1] = rng.uniform(0, 255);
+        (*randam)[2] = rng.uniform(0, 255);
+      }
+      mask++;
+      randam++;
+    }
+  }
+}

@@ -25,4 +25,11 @@ extern void LabelMaskImage(const std::vector<float>& result,
                 const cv::Mat& input_im,
                 cv::Mat& mask_im);
 
+extern void RandamMaskImage(const std::vector<float>& result,
+                     const int input_label,
+                     const cv::Mat& input_im,
+                     cv::RNG& rng,
+                     cv::Mat& randam_im,
+                     cv::Mat& mask_im);
+                     
 #endif /* UTILS_H_ */
