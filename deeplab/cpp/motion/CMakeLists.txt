@@ -1,10 +1,10 @@
 # cmake needs this line
-# cmake_minimum_required(VERSION 3.1)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
+# cmake_minimum_required(VERSION 2.8)
 
 # Enable C++11
-# set(CMAKE_CXX_STANDARD 11)
-# set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 # Define project name
 project(edge_tpu_deeplabv3_motion)
@@ -15,7 +15,7 @@ SET (CMAKE_VERBOSE_MAKEFILE 1)
 set(CMAKE_C_FLAGS "-Wall -pthread ")
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11  -lstdc++")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -lstdc++")
 set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
 set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
 
@@ -51,11 +51,11 @@ message(STATUS "Architecture: ${ARCHITECTURE}")
 
 # Link your application with Tensorflow Lite
 if( ${ARCHITECTURE} STREQUAL "armv7l" )
-    target_link_libraries(edge_tpu_deeplabv3_motion LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../cpp/lib/libtensorflow-lite_arm32.a)
-    target_link_libraries(edge_tpu_deeplabv3_motion LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../cpp/edgetpu-native/libedgetpu/libedgetpu_arm32.so)
+    target_link_libraries(edge_tpu_deeplabv3_motion LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../lib/libtensorflow-lite_arm32.a)
+    target_link_libraries(edge_tpu_deeplabv3_motion LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../edgetpu-native/libedgetpu/libedgetpu_arm32.so)
 else()
-    target_link_libraries(edge_tpu_deeplabv3_motion LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../cpp/lib/libtensorflow-lite_arm64.a)
-    target_link_libraries(edge_tpu_deeplabv3_motion LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../cpp/edgetpu-native/libedgetpu/libedgetpu_arm64.so)
+    target_link_libraries(edge_tpu_deeplabv3_motion LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../lib/libtensorflow-lite_arm64.a)
+    target_link_libraries(edge_tpu_deeplabv3_motion LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../edgetpu-native/libedgetpu/libedgetpu_arm64.so)
 endif()
 
 
@@ -72,6 +72,6 @@ if(LIBDL)
 endif()
 
 target_include_directories(edge_tpu_deeplabv3_motion PUBLIC ${CMAKE_SOURCE_DIR})
-target_include_directories(edge_tpu_deeplabv3_motion PUBLIC ${CMAKE_SOURCE_DIR}/../cpp/edgetpu-native/libedgetpu/)
-target_include_directories(edge_tpu_deeplabv3_motion PUBLIC ${CMAKE_SOURCE_DIR}/../cpp/edgetpu-native/tensorflow/)
-target_include_directories(edge_tpu_deeplabv3_motion PUBLIC ${CMAKE_SOURCE_DIR}/../cpp/edgetpu-native/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)
+target_include_directories(edge_tpu_deeplabv3_motion PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu-native/libedgetpu/)
+target_include_directories(edge_tpu_deeplabv3_motion PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu-native/tensorflow/)
+target_include_directories(edge_tpu_deeplabv3_motion PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu-native/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)
