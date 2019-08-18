@@ -5,7 +5,7 @@ Edge tpu python sample (Raspberry Pi).
  - [Object detection by PiCamera.](detection)
  - [Image classifilcation by PiCamera.](classify)
  - [Object camouflage by PiCamera.](camouflage) 
- - [Semantic Segmentation using DeepLabv3.](deeplab)
+ - [Semantic Segmentation using DeepLab v3.](deeplab)
 
 ## Environment
 - Coral USB Accelerator

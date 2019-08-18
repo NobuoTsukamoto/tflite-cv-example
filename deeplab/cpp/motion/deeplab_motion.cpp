@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 {
   // Args parser.
   const cv::String keys =
-        "{help h ? |    | show help command}"
+        "{help h ? |    | show help command.}"
         "{m model  |    | path to deeplab tf-lite model flie.}"
         "{l label  |15  | index of the target label for motion analysis. (default: Person)} "
         "{n thread |1   | num of thread to set tf-lite interpreter.}"

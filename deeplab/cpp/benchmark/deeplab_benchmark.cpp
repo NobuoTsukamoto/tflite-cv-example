@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 {
   // Args parser.
   const cv::String keys =
-        "{help h ?     |    | show help command}"
+        "{help h ?     |    | show help command.}"
         "{@input       |    | path to input image file.}"
         "{m model      |    | path to deeplab tf-lite model flie.}"
         "{n thread     |1   | num of thread to set tf-lite interpreter.}"
