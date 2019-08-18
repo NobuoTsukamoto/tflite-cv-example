@@ -162,17 +162,7 @@ int main(int argc, char *argv[])
 
     // Create segmantation map.
     cv::Mat output_im = frame.clone();
-    if (is_display_label_im)
-    {
-      cv::Mat seg_im(cv::Size(input_tensor_shape[1], input_tensor_shape[2]), CV_8UC3);
-      LabelToColorMap(result, *color_map.get(), seg_im);
-
-      // output tensor size => camera resolution
-      cv::cvtColor(seg_im, seg_im, cv::COLOR_RGB2BGR);
-      cv::resize(seg_im, seg_im, cv::Size(frame.cols, frame.rows));
-      output_im = (output_im / 2) + (seg_im / 2);
-    }
-    else
+    if (!is_display_label_im)
     {
       cv::cvtColor(output_im, output_im, cv::COLOR_BGR2BGRA);
       cv::Mat label_mask = cv::Mat::zeros(cv::Size(input_tensor_shape[1], input_tensor_shape[2]), CV_8UC1);
@@ -186,7 +176,6 @@ int main(int argc, char *argv[])
 
       randam_im.copyTo(output_im, label_mask);
     }
-    
 
     std::chrono::duration<double, std::milli> time_span = std::chrono::steady_clock::now() - start_time;
 

@@ -25,7 +25,8 @@ $ sudo apt install -y libusb-1.0-0
 ```
 
 Clone repository
-```$ git clone https://github.com/NobuoTsukamoto/edge_tpu.git
+```
+$ git clone https://github.com/NobuoTsukamoto/edge_tpu.git
 $ cd edge_tpu/deeplab/cpp/
 $ git submodule init && git submodule update
 $ cd edgetpu-native/
@@ -33,20 +34,28 @@ $ git submodule init && git submodule update
 ```
 
 Build TensorFlow Lite for ARM
-```$ cd tensorflow
+```
+$ cd tensorflow
 $ ./tensorflow/lite/tools/make/download_dependencies.sh
+
+# For arm7vl (Raspberry Pi)
 $ ./tensorflow/lite/tools/make/build_rpi_lib.sh
+
+# For aarch64 (Jetson Nano)
+$ ./tensorflow/lite/tools/make/build_aarch64_lib.sh
 ```
 
 If the build is successful. Copy *libtensorflow-lite.a* file.<br>
 **For arm7vl (Raspberry Pi)**
-```$ ls tensorflow/lite/tools/make/gen/rpi_armv7l/lib/
+```
+$ ls tensorflow/lite/tools/make/gen/rpi_armv7l/lib/
 benchmark-lib.a       libtensorflow-lite.a  
 $ cp tensorflow/lite/tools/make/gen/rpi_armv7l/lib/libtensorflow-lite.a ../../lib/libtensorflow-lite_arm32.a
 ```
 
 **For aarch64 (Jetson Nano)**
-```$ ls tensorflow/lite/tools/make/gen/rpi_armv7l/lib/
+```
+$ ls tensorflow/lite/tools/make/gen/aarch64_armv8-a/lib/benchmark-lib.a
 benchmark-lib.a       libtensorflow-lite.a  
 $ cp tensorflow/lite/tools/make/gen/aarch64_armv8-a/lib/libtensorflow-lite.a ../../lib/libtensorflow-lite_arm64.a
 ```

@@ -41,7 +41,7 @@ message(STATUS "    libraries: ${OpenCV_LIBS}")
 message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
 # Declare the executable target built from your sources
-add_executable(edge_tpu_deeplabv3_camouflage deeplab_camouflage.cpp utils.cpp deeplab_engine.cpp)
+add_executable(edge_tpu_deeplabv3_camouflage deeplab_camouflage.cpp ${CMAKE_SOURCE_DIR}/../utils/utils.cpp ${CMAKE_SOURCE_DIR}/../engine/deeplab_engine.cpp)
 
 # Link your application with OpenCV libraries
 target_link_libraries(edge_tpu_deeplabv3_camouflage LINK_PRIVATE ${OpenCV_LIBS})
@@ -72,6 +72,8 @@ if(LIBDL)
 endif()
 
 target_include_directories(edge_tpu_deeplabv3_camouflage PUBLIC ${CMAKE_SOURCE_DIR})
+target_include_directories(edge_tpu_deeplabv3_camouflage PUBLIC ${CMAKE_SOURCE_DIR}/../engine)
+target_include_directories(edge_tpu_deeplabv3_camouflage PUBLIC ${CMAKE_SOURCE_DIR}/../utils)
 target_include_directories(edge_tpu_deeplabv3_camouflage PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu-native/libedgetpu/)
 target_include_directories(edge_tpu_deeplabv3_camouflage PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu-native/tensorflow/)
 target_include_directories(edge_tpu_deeplabv3_camouflage PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu-native/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)
