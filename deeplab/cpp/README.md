@@ -3,7 +3,7 @@ This example performs segmentation with the TensorFlow Lite C++ API using the gi
 
 ## Examples.
 - [**Benchmark**](benchmark): Benchmark to measure inference time. 
-- [**Camouflage**](camoulage): Camouflage the specified label with a noise image. [watch this video.](https://www.youtube.com/watch?v=zQptVRlUwAM)
+- [**Camouflage**](camouflage): Camouflage the specified label with a noise image. [watch this video.](https://www.youtube.com/watch?v=b46mX0C4Mqo)
 - [**Segmentation**](segmentation): Draw the detected label with a color map. [watch this video.](https://youtube.com/watch?v=JtUR1ofaqN0)
 - [**AfterImage**](motion): Draws the afterimage of the specified label. [watch this video.](https://www.youtube.com/watch?v=zQptVRlUwAM)
 
