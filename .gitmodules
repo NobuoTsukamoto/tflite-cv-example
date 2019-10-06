@@ -2,3 +2,6 @@
 	path = deeplab/cpp/edgetpu-native
 	url = https://coral.googlesource.com/edgetpu-native
 	branch = release-diploria
+[submodule "deeplab/cpp/edgetpu"]
+	path = deeplab/cpp/edgetpu
+	url = https://github.com/google-coral/edgetpu.git
