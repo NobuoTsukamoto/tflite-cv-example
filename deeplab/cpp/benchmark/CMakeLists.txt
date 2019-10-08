@@ -53,10 +53,10 @@ message(STATUS "Architecture: ${ARCHITECTURE}")
 # Link your application with Tensorflow Lite
 if( ${ARCHITECTURE} STREQUAL "armv7l" )
     target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../lib/libtensorflow-lite_arm32.a)
-    target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../edgetpu-native/libedgetpu/libedgetpu_arm32.so)
+    target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../edgetpu/libedgetpu/libedgetpu_arm32.so)
 else()
     target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../lib/libtensorflow-lite_arm64.a)
-    target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../edgetpu-native/libedgetpu/libedgetpu_arm64.so)
+    target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE /usr/lib/aarch64-linux-gnu/libedgetpu.so.1)
 endif()
 
 
@@ -72,6 +72,6 @@ if(LIBDL)
 endif()
 
 target_include_directories(edge_tpu_deeplabv3_benchmark PUBLIC ${CMAKE_SOURCE_DIR})
-target_include_directories(edge_tpu_deeplabv3_benchmark PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu-native/libedgetpu/)
-target_include_directories(edge_tpu_deeplabv3_benchmark PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu-native/tensorflow/)
-target_include_directories(edge_tpu_deeplabv3_benchmark PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu-native/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)
+target_include_directories(edge_tpu_deeplabv3_benchmark PUBLIC ${CMAKE_SOURCE_DIR}/../edgetpu/libedgetpu/)
+target_include_directories(edge_tpu_deeplabv3_benchmark PUBLIC ${CMAKE_SOURCE_DIR}/../tensorflow/)
+target_include_directories(edge_tpu_deeplabv3_benchmark PUBLIC ${CMAKE_SOURCE_DIR}/../tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)
