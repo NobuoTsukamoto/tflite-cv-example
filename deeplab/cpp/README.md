@@ -29,8 +29,6 @@ Clone repository
 $ git clone https://github.com/NobuoTsukamoto/edge_tpu.git
 $ cd edge_tpu/deeplab/cpp/
 $ git submodule init && git submodule update
-$ cd edgetpu-native/
-$ git submodule init && git submodule update
 ```
 
 Build TensorFlow Lite for ARM
