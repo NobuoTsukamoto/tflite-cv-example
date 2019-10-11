@@ -4,9 +4,7 @@
 Run Pi Camera stream.
 
 ### Usaege
-``` $ python3 ./deeplab_picamera.py --model=./model/deeplabv3_mnv2_dm05_pascal_trainaug_edgetpu.tflite```<br>
-or<br>
-``` $ python3 ./deeplab_picamera.py --model=./model/deeplabv3_mnv2_pascal_train_aug_edgetpu.tflite```<br>
+``` $ python3 ./deeplab_picamera.py --model=<PATH_TO_MODEL_FILE>```<br>
 
 - q key: End app.
 
@@ -18,9 +16,7 @@ or<br>
 Run single image. The segmentation image is saved to "save.png".
 
 ### Usaege
-``` $ python3 ./deeplab_image.py --model=./model/deeplabv3_mnv2_dm05_pascal_trainaug_edgetpu.tflite --image=<PATH_TO_IMAGE_FILE>```<br>
-or<br>
-``` $ python3 ./deeplab_image.py --model=./model/deeplabv3_mnv2_pascal_train_aug_edgetpu.tflite --image=<PATH_TO_IMAGE_FILE>```<br>
+``` $ python3 ./deeplab_image.py --model=<PATH_TO_MODEL_FILE> --image=<PATH_TO_IMAGE_FILE>```<br>
 
 ## With Jetson Nano + PiCamera
 Opencv VideoCapture With Gstreamer V4L2.<br>
