@@ -53,7 +53,7 @@ message(STATUS "Architecture: ${ARCHITECTURE}")
 # Link your application with Tensorflow Lite
 if( ${ARCHITECTURE} STREQUAL "armv7l" )
     target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../lib/libtensorflow-lite_arm32.a)
-    target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../edgetpu/libedgetpu/libedgetpu_arm32.so)
+    target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE /usr/lib/arm-linux-gnueabihf/libedgetpu.so.1)
 else()
     target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../lib/libtensorflow-lite_arm64.a)
     target_link_libraries(edge_tpu_deeplabv3_benchmark LINK_PRIVATE /usr/lib/aarch64-linux-gnu/libedgetpu.so.1)
