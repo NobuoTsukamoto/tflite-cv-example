@@ -25,7 +25,7 @@ import PIL
 
 from utils import visualization as visual
 
-WINDOW_NAME = 'Edge TPU Tf-lite object detection'
+WINDOW_NAME = 'Edge TPU TF-lite object detection'
 
 # Function to read labels from text files.
 def ReadLabelFile(file_path):
@@ -92,7 +92,7 @@ def main():
 
                 # Run inference.
                 start_ms = time.time()
-                ans = engine.DetectWithImage(input_buf, threshold=args.threshold,
+                ans = engine.detect_with_image(input_buf, threshold=args.threshold,
                        keep_aspect_ratio=False, relative_coord=False, top_k=args.top_k)
                 # ans = engine.DetectWithInputTensor(input_buf, threshold=0.05,
                 #         keep_aspect_ratio=False, relative_coord=False, top_k=10)
@@ -119,12 +119,16 @@ def main():
                     elapsed_list.pop(0)
                     avg_elapsed_ms = np.mean(elapsed_list)
                     avg_fps = 1 / avg_elapsed_ms
-                    avg_text = ' AGV: {0:.2f}ms, {1:.2f}fps'.format(
-                        (avg_elapsed_ms * 1000.0), avg_fps)
+                    # avg_text = ' AGV: {0:.2f}ms, {1:.2f}fps'.format(
+                    #     (avg_elapsed_ms * 1000.0), avg_fps)
+                    avg_text = ' AGV: {0:.2f}ms'.format(
+                        (avg_elapsed_ms * 1000.0))
 
                 # Display fps
-                fps_text = '{0:.2f}ms, {1:.2f}fps'.format(
-                        (elapsed_ms * 1000.0), fps)
+                fps_text = '{0:.2f}ms'.format(
+                        (elapsed_ms * 1000.0))
+                # fps_text = '{0:.2f}ms, {1:.2f}fps'.format(
+                #         (elapsed_ms * 1000.0), fps)
                 visual.draw_caption(im, (10, 30), fps_text + avg_text)
 
                 # display
