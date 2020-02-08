@@ -31,8 +31,17 @@ $ cd edge_tpu/deeplab/cpp/
 $ git submodule init && git submodule update
 ```
 
-Build TensorFlow Lite for ARM
+Build module.
 ```
+$ cd (target dir you want to build)
+$ mkdir build && cd build
+$ cmake ..  
+$ make
+```
+
+## If you want to rebuild TensorFlow Lite for ARM
+```
+$ git clone -b <Branch or Tag name> https://github.com/tensorflow/tensorflow
 $ cd tensorflow
 $ ./tensorflow/lite/tools/make/download_dependencies.sh
 
@@ -58,13 +67,6 @@ benchmark-lib.a       libtensorflow-lite.a
 $ cp tensorflow/lite/tools/make/gen/aarch64_armv8-a/lib/libtensorflow-lite.a ../../lib/libtensorflow-lite_arm64.a
 ```
 
-Build module.
-```
-$ cd (target dir you want to build)
-$ mkdir build && cd build
-$ cmake ..  
-$ make
-```
 
 
 
