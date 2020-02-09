@@ -1,16 +1,16 @@
 # Edge TPU samples.
 
 ## About
-Edge tpu python sample (Raspberry Pi).
- - [Object detection by PiCamera.](detection)
+Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux).
+ - [Object detection by PiCamera or Video Capture.](detection)
  - [Image classifilcation by PiCamera.](classify)
  - [Object camouflage by PiCamera.](camouflage) 
  - [Semantic Segmentation using DeepLab v3.](deeplab)
 
 ## Environment
-- Coral USB Accelerator
-- Raspberry Pi (3 B+)
-- PiCamera
+- Coral Edge TPU USB Accelerator
+- Raspberry Pi (3 B+ / 4) + PiCamera or UVC Camera
+- x64 PC(Windows or Linux) + Video file or UVC Camera
 - Python3
 
 ## Installation
@@ -18,9 +18,6 @@ Edge tpu python sample (Raspberry Pi).
 - Edge TPU Python library [(Get started with the USB Accelerator)](https://coral.withgoogle.com/tutorials/accelerator/)
 
 ## Usage
-Object detection:<br>
-``` $ python3 ./object_detection_capture_picamera.py --model=<PATH_TO_edgetpu.tflite> --label=<PATH_TO_LABELS_TXT>```
-
 Image classification:<br>
 ``` $ python3 ./object_detection_capture_picamera.py --model=<PATH_TO_edgetpu.tflite> --label=<PATH_TO_LABELS_TXT>```
 
