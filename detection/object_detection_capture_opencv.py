@@ -116,10 +116,10 @@ def main():
         if len(elapsed_list) > 100:
             elapsed_list.pop(0)
             avg_elapsed_ms = np.mean(elapsed_list)
-            avg_text = " AGV: {0:.2f}ms".format((avg_elapsed_ms))
+            avg_text = " AGV: {0:.2f}ms".format(avg_elapsed_ms)
 
         # Display fps
-        fps_text = "{0:.2f}ms".format((elapsed_ms))
+        fps_text = "{0:.2f}ms".format(elapsed_ms)
         visual.draw_caption(frame, (10, 30), fps_text + avg_text)
 
         # display
