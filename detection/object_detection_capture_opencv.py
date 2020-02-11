@@ -10,7 +10,6 @@
     See the LICENSE file in the project root for more information.
 """
 
-import sys
 import argparse
 import time
 
