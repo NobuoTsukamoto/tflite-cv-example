@@ -1,5 +1,7 @@
 # Edge TPU Object detection sample.
 
+![Image](g3doc/img/output.gif)
+
 ## Python examples
 - [object_detection_capture_picamera.py](object_detection_capture_picamera.py)<br>
 Raspberry Pi + PiCamera

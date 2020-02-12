@@ -3,9 +3,13 @@
 ## About
 Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux).
  - [Object detection by PiCamera or Video Capture.](detection)
- - [Image classifilcation by PiCamera.](classify)
+ - [Image classifilcation by PiCamera or Video Capture.](classify)
  - [Object camouflage by PiCamera.](camouflage) 
  - [Semantic Segmentation using DeepLab v3.](deeplab)
+
+![detection](detection/g3doc/img/output.gif)
+![camouflage](camouflage/g3doc/img/output.gif)
+![segmentation](deeplab/g3doc/img/output.gif)
 
 ## Environment
 - Coral Edge TPU USB Accelerator
