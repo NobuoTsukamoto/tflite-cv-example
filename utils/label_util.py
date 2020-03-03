@@ -47,7 +47,7 @@ def label_to_color_image(colormap, label):
     if label.ndim != 2:
         raise ValueError('Expect 2-D input label')
 
-     if np.max(label) >= len(colormap):
+    if np.max(label) >= len(colormap):
         raise ValueError('label value too large.')
 
     return colormap[label]

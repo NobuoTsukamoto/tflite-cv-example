@@ -104,6 +104,30 @@ void LabelMaskImage(const std::vector<float>& result,
   }
 }
 
+void LabelMaskColorImage(const std::vector<float>& result,
+                const int input_label,
+                const cv::Mat& input_im,
+                cv::Mat& mask_im)
+{
+  cv::Scalar color(255, 0, 0);
+
+  for (int y = 0; y < mask_im.rows; y++)
+  {
+    cv::Vec3b *src = &mask_im.at<cv::Vec3b>(y, 0);
+    for (int x = 0; x < mask_im.cols; x++)
+    {
+      auto label = (int)result[(mask_im.rows * y) + x];
+      if (label == input_label)
+      {
+        (*src)[0] = color[0];
+        (*src)[1] = color[1];
+        (*src)[2] = color[2];
+      }
+      src++;
+    }
+  }
+}
+
 void RandamMaskImage(const std::vector<float>& result,
                      const int input_label,
                      const cv::Mat& input_im,
@@ -129,4 +153,26 @@ void RandamMaskImage(const std::vector<float>& result,
       randam++;
     }
   }
+}
+
+bool IsLabelInResult(const std::vector<float>& result,
+                     const int input_label,
+                     const int width,
+                     const int height)
+{
+  auto is_label = false;
+
+  for (auto y = 0; y < height; y++)
+  {
+    for (auto x = 0; x < width; x++)
+    {
+      auto label = (int)result[((height - 1) * y) + x];
+      if (label == input_label)
+      {
+        is_label = true;
+        break;
+      }
+    }
+  }
+  return is_label;
 }
