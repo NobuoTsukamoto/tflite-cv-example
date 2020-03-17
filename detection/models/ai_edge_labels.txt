@@ -1,0 +1,10 @@
+0 Car
+1 Bus
+2 Truck
+3 SVehicle
+4 Pedestrian
+5 Motorbike
+6 Bicycle
+7 Train
+8 Signal
+9 Signs
