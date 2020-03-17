@@ -6,12 +6,14 @@ This example performs segmentation with the TensorFlow Lite C++ API using the gi
 - [**Camouflage**](camouflage): Camouflage the specified label with a noise image. [watch this video.](https://www.youtube.com/watch?v=b46mX0C4Mqo)
 - [**Segmentation**](segmentation): Draw the detected label with a color map. [watch this video.](https://youtube.com/watch?v=JtUR1ofaqN0)
 - [**AfterImage**](motion): Draws the afterimage of the specified label. [watch this video.](https://www.youtube.com/watch?v=zQptVRlUwAM)
+- [**Transparent**](transparent): The specified label becomes transparent.
 
 
 ## Reference
 - [Google Coral Edge TPU with C++ on Jetson Nano](https://qiita.com/iwatake2222/items/3a09a2d26b022a5a8a95)
 - [Build TensorFlow Lite for ARM64 boards](https://www.tensorflow.org/lite/guide/build_arm64)
 - [Coral EdgeTPU C++ API overview](https://coral.withgoogle.com/docs/edgetpu/api-cpp/)
+- [**How to create pre-built TensorflowLite library**](https://github.com/iwatake2222/EdgeTPU_CPP#how-to-create-pre-built-tensorflowlite-library)
 
 # How to build.
 This build method targets armv7l or aarch64.<br>
@@ -24,25 +26,24 @@ $ sudo apt install -y libc6-dev libc++-dev libc++abi-dev
 $ sudo apt install -y libusb-1.0-0
 ```
 
-Clone repository
+## Clone repository
 ```
 $ git clone https://github.com/NobuoTsukamoto/edge_tpu.git
 $ cd edge_tpu/deeplab/cpp/
 $ git submodule init && git submodule update
 ```
 
-Build module.
-```
-$ cd (target dir you want to build)
-$ mkdir build && cd build
-$ cmake ..  
-$ make
-```
+## Build TensorFlow-Lite library
+**Please refer to the following URL(github repository) for details of build TensorFlow Library. Thanks [@iwatake2222-san](https://twitter.com/iwatake2222)!**
+- [**iwatake2222 / EdgeTPU_CPP**](https://github.com/iwatake2222/EdgeTPU_CPP)<br>
 
-## If you want to rebuild TensorFlow Lite for ARM
 ```
-$ git clone -b <Branch or Tag name> https://github.com/tensorflow/tensorflow
+$ git clone https://github.com/tensorflow/tensorflow.git
 $ cd tensorflow
+$ git checkout d855adfc5a0195788bf5f92c3c7352e638aa1109
+$ git cherry-pick e8376142f50982e2bc22fae2d62f8fcfc6e88df7
+$ git cherry-pick 72cd947f231950d7ecd1406b5a67388fef7133ea
+
 $ ./tensorflow/lite/tools/make/download_dependencies.sh
 
 # For arm7vl (Raspberry Pi)
@@ -57,16 +58,20 @@ If the build is successful. Copy *libtensorflow-lite.a* file.<br>
 ```
 $ ls tensorflow/lite/tools/make/gen/rpi_armv7l/lib/
 benchmark-lib.a       libtensorflow-lite.a  
-$ cp tensorflow/lite/tools/make/gen/rpi_armv7l/lib/libtensorflow-lite.a ../../lib/libtensorflow-lite_arm32.a
+$ cp tensorflow/lite/tools/make/gen/rpi_armv7l/lib/libtensorflow-lite.a ../cpp/lib/libtensorflow-lite_arm32.a
 ```
 
 **For aarch64 (Jetson Nano)**
 ```
 $ ls tensorflow/lite/tools/make/gen/aarch64_armv8-a/lib/benchmark-lib.a
 benchmark-lib.a       libtensorflow-lite.a  
-$ cp tensorflow/lite/tools/make/gen/aarch64_armv8-a/lib/libtensorflow-lite.a ../../lib/libtensorflow-lite_arm64.a
+$ cp tensorflow/lite/tools/make/gen/aarch64_armv8-a/lib/libtensorflow-lite.a ../cpp/lib/libtensorflow-lite_arm64.a
 ```
 
-
-
-
+Build module.
+```
+$ cd (target dir you want to build)
+$ mkdir build && cd build
+$ cmake ..  
+$ make
+```
