@@ -34,7 +34,7 @@ def make_interpreter(model_file):
     model_name = os.path.basename(model_file)
     model_file, *device = model_file.split('@')
 
-    if 'edgetpu.tflite' in model_name:
+    if 'edgetpu.tflite' in model_file:
         print('edgetpu')
         return tflite.Interpreter(
             model_path=model_file,
