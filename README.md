@@ -1,15 +1,17 @@
-# Edge TPU samples.
+# Edge TPU / TF-Lite samples.
 
 ## About
-Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux).
+Coral Edge TPU / TensorFlow-Lite samples (Python/C++, Raspberry Pi/Windows/Linux).
  - [Object detection by PiCamera or Video Capture.](detection)
  - [Image classifilcation by PiCamera or Video Capture.](classify)
  - [Object camouflage by PiCamera.](camouflage) 
  - [Semantic Segmentation using DeepLab v3.](deeplab)
+ - [Image segmentation by PiCamera](segmentation)
 
 ![detection](detection/g3doc/img/output.gif)
 ![camouflage](camouflage/g3doc/img/output.gif)
-![segmentation](deeplab/g3doc/img/output.gif)
+![deeplab](deeplab/g3doc/img/output.gif)
+![segmentation](segmentation/g3doc/segmentation.gif)
 
 ## Environment
 - Coral Edge TPU USB Accelerator
