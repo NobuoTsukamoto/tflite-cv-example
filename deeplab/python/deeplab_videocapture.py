@@ -24,32 +24,6 @@ from utils import label_util
 
 WINDOW_NAME = 'Edge TPU Segmentation'
 
-LABEL_NAMES = np.asarray(
-    [
-        "background",
-        "aeroplane",
-        "bicycle",
-        "bird",
-        "boat",
-        "bottle",
-        "bus",
-        "car",
-        "cat",
-        "chair",
-        "cow",
-        "diningtable",
-        "dog",
-        "horse",
-        "motorbike",
-        "person",
-        "pottedplant",
-        "sheep",
-        "sofa",
-        "train",
-        "tv",
-    ]
-)
-
 
 def main():
     parser = argparse.ArgumentParser()
