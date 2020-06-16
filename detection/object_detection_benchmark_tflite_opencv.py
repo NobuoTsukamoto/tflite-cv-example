@@ -30,7 +30,7 @@ EDGETPU_SHARED_LIB = {
 }[platform.system()]
 
 
-def make_interpreter(model_file):
+def make_interpreter(model_file, num_of_threads):
     model_name = os.path.basename(model_file)
     model_file, *device = model_file.split('@')
 
@@ -44,6 +44,7 @@ def make_interpreter(model_file):
                 ])
     else:
         return tflite.Interpreter(
+            #model_path=model_file, num_threads=num_of_threads)
             model_path=model_file)
 
 
@@ -99,9 +100,8 @@ def main():
     args = parser.parse_args()
 
     # Initialize TF-Lite interpreter.
-    interpreter = make_interpreter(args.model)
+    interpreter = make_interpreter(args.model, args.thread)
     interpreter.allocate_tensors()
-    interpreter.set_num_threads(args.thread)
     _, height, width, channel = interpreter.get_input_details()[0]['shape']
     print('Interpreter: ', height, width, channel)
 

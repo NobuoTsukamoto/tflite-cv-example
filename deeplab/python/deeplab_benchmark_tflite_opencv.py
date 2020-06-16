@@ -21,7 +21,7 @@ import platform
 
 import cv2
 
-def make_interpreter(model_file):
+def make_interpreter(model_file, num_of_threads):
     model_name = os.path.splitext(os.path.basename(model_file))[0]
     model_file, *device = model_file.split('@')
 
@@ -34,7 +34,7 @@ def make_interpreter(model_file):
                                     {'device': device[0]} if device else {})
                 ])
     else:
-        return tflite.Interpreter(model_path=model_file)
+        return tflite.Interpreter(model_path=model_file, num_threads=num_of_threads)
 
 
 def set_input_tensor(interpreter, image):
@@ -73,9 +73,8 @@ def main():
     args = parser.parse_args()
 
     # Initialize TF-Lite interpreter.
-    interpreter = make_interpreter(args.model)
+    interpreter = make_interpreter(args.model, args.thread)
     interpreter.allocate_tensors()
-    interpreter.set_num_threads(args.thread)
     _, height, width, channel = interpreter.get_input_details()[0]['shape']
     print('Interpreter: ', height, width, channel)
 
