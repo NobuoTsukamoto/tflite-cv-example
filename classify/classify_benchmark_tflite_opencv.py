@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    Edge TPU object detection benchmark with OpenCV.
+    Edge TPU image classification benchmark with OpenCV.
 
     Copyright (c) 2020 Nobuo Tsukamoto
 
@@ -14,6 +14,7 @@ import os
 import argparse
 import time
 import collections
+import operator
 
 import numpy as np
 
@@ -29,6 +30,7 @@ EDGETPU_SHARED_LIB = {
   'Windows': 'edgetpu.dll'
 }[platform.system()]
 
+Class = collections.namedtuple('Class', ['id', 'score'])
 
 def make_interpreter(model_file, num_of_threads):
     model_name = os.path.basename(model_file)
@@ -67,25 +69,16 @@ def get_output_tensor(interpreter, index):
     return tensor
 
 
-def get_output(interpreter, score_threshold):
+def get_output(interpreter, top_k=1, score_threshold=0.0):
     """ Returns list of detected objects.
     """
-    # Get all output details
-    boxes = get_output_tensor(interpreter, 0)
-    class_ids = get_output_tensor(interpreter, 1)
-    scores = get_output_tensor(interpreter, 2)
-    count = int(get_output_tensor(interpreter, 3))
-    
-    results = []
-    for i in range(count):
-        if scores[i] >= score_threshold:
-            result = {
-                'bounding_box': boxes[i],
-                'class_id': class_ids[i],
-                'score': scores[i]
-            }
-            results.append(result)
-    return results
+    scores = get_output_tensor(interpreter, 0)
+    classes = [
+        Class(i, scores[i])
+        for i in np.argpartition(scores, -top_k)[-top_k:]
+        if scores[i] >= score_threshold
+    ]
+    return sorted(classes, key=operator.itemgetter(1), reverse=True)
 
 
 def main():
@@ -94,9 +87,6 @@ def main():
     parser.add_argument('--image', help='File path of image file.', required=True)
     parser.add_argument("--thread", help="Num threads.", default=2, type=int)
     parser.add_argument('--count', help='Repeat count.', default=100, type=int)
-    parser.add_argument(
-        "--threshold", help="threshold to filter results.", default=0.5, type=float
-    )
     args = parser.parse_args()
 
     # Initialize TF-Lite interpreter.
@@ -121,7 +111,8 @@ def main():
 
         set_input_tensor(interpreter, resize_im)
         interpreter.invoke()
-        objs = get_output(interpreter, args.threshold)
+        # objs = get_output(interpreter, args.threshold)
+        classes = get_output(interpreter)
 
         inference_time = (time.perf_counter() - start) * 1000
 
