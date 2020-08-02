@@ -3,46 +3,36 @@
 ![Image](g3doc/img/output.gif)
 
 ## Python examples
-- [object_detection_capture_picamera.py](object_detection_capture_picamera.py)<br>
-Raspberry Pi + PiCamera
-- [object_detection_capture_opencv.py](object_detection_capture_opencv.py)<br>
-OpenCV, VideoCapture or UVC
- Camera
+- Using Edge TPU Python API (Edge TPU Model)
+    - [object_detection_capture_picamera.py](object_detection_capture_picamera.py)<br>
+    Raspberry Pi + PiCamera
+    - [object_detection_capture_opencv.py](object_detection_capture_opencv.py)<br>
+    OpenCV, VideoCapture or UVC Camera
+- Using TensorFlow Lite interpreter (TF-Lite Model, Edge TPU Model)
+    - [object_detection_benchmark_tflite_opencv.py](object_detection_benchmark_tflite_opencv.py)<br>
+    Benchmark script
+    - [object_detection_tflite_capture_opencv.py](object_detection_tflite_capture_opencv.py)<br>
+    OpenCV, VideoCapture or UVC Camera
 
-## Model
+## Models
 
-### SSDLite MobileNet EdgeTPU Coco
-- [Edge TPU Model](models/ssd_mobilenet_edgetpu_coco_edgetpu.tflite)
-- [Original Model(Tensorflow detection model zoo)](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md#pixel4-edge-tpu-models)
-- [Label File](models/coco_labels.txt)
-- Note: Be careful with the Edge TPU compiler and library versions.<br>
-If the compiler version is 2.0.291256449, generate a model from [export_tflite_ssd_graph.py](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_on_mobile_tensorflowlite.md). If you compile tflite in the pre-trained model of model zoo, it will not work properly.<br>
-Example.
-    - [Install Tensorflow Object Detection API.](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
-    - Download models and unzip files.
-```
-    # From tensorflow/models/research/
-    $ python object_detection/export_tflite_ssd_graph.py \
-        --pipeline_config_path=ssdlite_mobilenet_edgetpu_coco_quant/pipeline.config \
-        --trained_checkpoint_prefix=./ssdlite_mobilenet_edgetpu_coco_quant/model.ckpt \
-        --output_directory=ssdlite_mobilenet_edgetpu_coco_quant \
-        --add_postprocessing_op=true
-    $ tflite_convert \
-        --output_file=ssdlite_mobilenet_edgetpu_coco_quant/output_tflite_graph.tflite \
-        --graph_def_file=ssdlite_mobilenet_edgetpu_coco_quant/tflite_graph.pb \
-        --inference_type=QUANTIZED_UINT8 \
-        --input_arrays=normalized_input_image_tensor \
-        --output_arrays=TFLite_Detection_PostProcess,TFLite_Detection_PostProcess:1,TFLite_Detection_PostProcess:2,TFLite_Detection_PostProcess:3 \
-        --mean_values=128 \
-        --std_dev_values=128 \
-        --input_shapes=1,320,320,3 \
-        --change_concat_input_ranges=false \
-        --allow_nudging_weights_to_use_fast_gemm_kernel=true 
-        --allow_custom_ops
-    $ cd ssdlite_mobilenet_edgetpu_coco_quant
-    $ edgetpu_compiler -s output_tflite_graph.tflite 
+Pre-trained models.
+## Coral Edge TPU models
+[Coral Pre-compiled models](https://coral.ai/models/)
 
-```
+## TensorFlow 1 Detection Model Zoo
+[This notebook](https://gist.github.com/NobuoTsukamoto/832905aa765f6faa16f53d6dddf61bd2) converts the pre-trained model of "TensorFlow 1 Detection Model Zoo" into TF-Lite or Edge TPU Model.
+
+|Model Name|Output model type|
+|:---|:---|
+|ssd_mobilenet_v2_coco|INT8, EdgeTPU|
+|ssd_mobilenet_v3_large_coco|FP32|
+|ssd_mobilenet_v3_small_coco|FP32|
+|ssd_mobilenet_v2_mnasfpn_coco|FP32|
+|ssdlite_mobiledet_cpu_coco|FP32|
+|ssdlite_mobiledet_edgetpu_coco|INT8, EdgeTPU|
+|ssd_mobilenet_edgetpu_coco|INT8, EdgeTPU|
+
 
 
 ## Usage

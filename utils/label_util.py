@@ -12,6 +12,7 @@
 
 import numpy as np
 
+
 def create_pascal_label_colormap():
     """ Creates a label colormap used in PASCAL VOC segmentation benchmark.
 
@@ -45,9 +46,25 @@ def label_to_color_image(colormap, label):
             map maximum entry.
     """
     if label.ndim != 2:
-        raise ValueError('Expect 2-D input label')
+        raise ValueError("Expect 2-D input label")
 
     if np.max(label) >= len(colormap):
-        raise ValueError('label value too large.')
+        raise ValueError("label value too large.")
 
     return colormap[label]
+
+
+def read_label_file(file_path):
+    """ Function to read labels from text files.
+
+    Args:
+        file_path: File path to labels.
+    """
+    with open(file_path, "r") as f:
+        lines = f.readlines()
+
+    ret = {}
+    for line in lines:
+        pair = line.strip().split(maxsplit=1)
+        ret[int(pair[0])] = pair[1].strip()
+    return ret

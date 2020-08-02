@@ -11,32 +11,18 @@
 """
 
 import argparse
-import io
 import time
 
+import cv2
 import numpy as np
 import picamera
-from picamera.array import PiRGBArray
-
-from edgetpu.detection.engine import DetectionEngine
-
-import cv2
 import PIL
-
+from edgetpu.detection.engine import DetectionEngine
+from picamera.array import PiRGBArray
 from utils import visualization as visual
+from utils.label_util import read_label_file
 
 WINDOW_NAME = "Edge TPU TF-lite object detection(PiCamera)"
-
-# Function to read labels from text files.
-def ReadLabelFile(file_path):
-    with open(file_path, "r") as f:
-        lines = f.readlines()
-
-    ret = {}
-    for line in lines:
-        pair = line.strip().split(maxsplit=1)
-        ret[int(pair[0])] = pair[1].strip()
-    return ret
 
 
 def main():
@@ -59,7 +45,7 @@ def main():
 
     # Initialize engine.
     engine = DetectionEngine(args.model)
-    labels = ReadLabelFile(args.label) if args.label else None
+    labels = read_label_file(args.label) if args.label else None
 
     # Generate random colors.
     last_key = sorted(labels.keys())[len(labels.keys()) - 1]
@@ -90,7 +76,6 @@ def main():
                 input_buf = PIL.Image.fromarray(image)
 
                 # Run inference.
-                start_ms = time.time()
                 ans = engine.detect_with_image(
                     input_buf,
                     threshold=args.threshold,
