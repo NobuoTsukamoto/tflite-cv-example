@@ -4,3 +4,6 @@
 [submodule "detection/vc_tflite/tensorflow"]
 	path = detection/vc_tflite/tensorflow
 	url = https://github.com/tensorflow/tensorflow.git
+[submodule "detection/vc_tflite/libedgetpu"]
+	path = detection/vc_tflite/libedgetpu
+	url = https://github.com/NobuoTsukamoto/libedgetpu.git
