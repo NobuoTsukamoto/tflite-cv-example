@@ -54,7 +54,6 @@ fatal error C1083: include Cannot open include file: 'stdatomic.h':No such file 
 *2: Nothing is copied when *CMAKE_INSTALL_PREFIX* is set.
 
 ## Build libedgetpu
-- 
 - Download libusb-1.0.22 and extract the files to the vc_tflite folder.
   ```
     vc_tflite
@@ -76,6 +75,25 @@ fatal error C1083: include Cannot open include file: 'stdatomic.h':No such file 
   vc_tflite\libedgetpu\out\throttled\x64_windows\edgetpu.dll.if.lib
   vc_tflite\libedgetpu\bazel-out\x64_windows-opt\bin\tflite\public\libusb-1.0.dll
   ```
+
+Note: Changed TENSORFLOW_COMMIT to v2.4.0-rc2.
+```
+diff --git a/workspace.bzl b/workspace.bzl
+index 5d05c69..3e9d7b0 100644
+--- a/workspace.bzl
++++ b/workspace.bzl
+@@ -5,8 +5,8 @@ This module contains workspace definitions for building and using libedgetpu.
+ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+
+-TENSORFLOW_COMMIT = "f394a768719a55b5c351ed1ecab2ec6f16f99dd4"
+-TENSORFLOW_SHA256 = "cb286abee7ee9cf5c8701d85fcc88f0fd59e72492ec4f254156de486e3e905c1"
++TENSORFLOW_COMMIT = "0b06f2927be226ffe44f47bfa9e03e4ea649d7f3"
++TENSORFLOW_SHA256 = "098733e15e227a6a55997295ca761a9a8e7169b64104ea86feb952e4e2ea0bc9"
+
+ IO_BAZEL_RULES_CLOSURE_COMMIT = "308b05b2419edb5c8ee0471b67a40403df940149"
+ IO_BAZEL_RULES_CLOSURE_SHA256 = "5b00383d08dd71f28503736db0500b6fb4dda47489ff5fc6bed42557c07c6ba9"
+```
 
 # Create Application (VC++)
 ## Dependent third party libraries
