@@ -109,9 +109,7 @@ int main(int argc, char* argv[]) try
 
     detector->BuildInterpreter(model_path, num_of_threads);
     auto width = detector->Width();
-    width = 300;
     auto height = detector->Height();
-    height = 300;
 
     // Load label file
     auto labels = ReadLabelFile(label_path);
