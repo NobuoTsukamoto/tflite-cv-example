@@ -37,9 +37,7 @@ def make_interpreter(model_file, num_of_threads):
         return tflite.Interpreter(
             model_path=model_file,
             experimental_delegates=[
-                tflite.load_delegate(
-                    EDGETPU_SHARED_LIB, {"device": device[0]} if device else {}
-                )
+                tflite.load_delegate(EDGETPU_SHARED_LIB)
             ],
         )
     else:
