@@ -1,22 +1,22 @@
-# Edge TPU Object detection sample.
+# TensorFlow Lite / Edge TPU Object detection samples.
 
 ![Image](g3doc/img/output.gif)
 
-## Python examples
-- Using Edge TPU Python API (Edge TPU Model)
-    - [object_detection_capture_picamera.py](object_detection_capture_picamera.py)<br>
-    Raspberry Pi + PiCamera
-    - [object_detection_capture_opencv.py](object_detection_capture_opencv.py)<br>
-    OpenCV, VideoCapture or UVC Camera
-- Using TensorFlow Lite interpreter (TF-Lite Model, Edge TPU Model)
-    - [object_detection_benchmark_tflite_opencv.py](object_detection_benchmark_tflite_opencv.py)<br>
-    Benchmark script
-    - [object_detection_tflite_capture_opencv.py](object_detection_tflite_capture_opencv.py)<br>
-    OpenCV, VideoCapture or UVC Camera
+## List of samples
+
+| Name | Language | Description | Backend | OS |
+|:---|:---|:---|:---|:---|
+|[Benchmark](python/object_detection_benchmark_tflite_opencv.py) | Python | TensorFlow Lite Object detection benchmark with OpenCV. | TensorFLow Lite (EdgeTPU delegate) | Windows, Linux |
+|[Capture using PyCoral](python/object_detection_capture_opencv.py) | Python | Object detection for camera or video capture using OpenCV and PyCoral API. | PyCoral | Windows, Linux |
+|[PiCamera using PyCoral](python/object_detection_capture_picamera.py) | Python | Object detection for camera capture using PiCamera and PyCoral API. | PyCoral | Raspberry Pi |
+|[Capture using TensorFlow Lite](python/object_detection_tflite_capture_opencv.py)| Python | Object detection for camera or video capture using OpenCV and TensorFlow Lite API. | TensorFlow Lite (EdgeTPU delegate) | Windows, Linux |
+|[C++ CMake](cpp)| C++ | C++ CMake Project.<br>Object detection for camera or video capture using OpenCV and TensorFlow Lite API. | TensorFlow Lite (EdgeTPU delegate) | Windows, Linux |
+|[VC++](vc_tflite) | Visual C++ | Visual Studio 2019 (VC++) Sample.<br>TensorFlow Lite and TensorFlow Lite EdgeTPU delegate with Visual Studio. | TensorFlow Lite (EdgeTPU delegate) | Windows |
+<br>
 
 ## Models
 
-Pre-trained models.
+
 ## Coral Edge TPU models
 [Coral Pre-compiled models](https://coral.ai/models/)
 
@@ -32,27 +32,3 @@ Pre-trained models.
 |ssdlite_mobiledet_cpu_coco|FP32|
 |ssdlite_mobiledet_edgetpu_coco|INT8, EdgeTPU|
 |ssd_mobilenet_edgetpu_coco|INT8, EdgeTPU|
-
-
-
-## Usage
-- object_detection_capture_picamera.py:<br>
-``` 
-    $ python ./object_detection_capture_picamera.py \
-        --model=<PATH_TO_edgetpu.tflite> \
-        --label=<PATH_TO_LABELS_TXT>
-```
-- object_detection_capture_opencv.py(Video file):<br>
-```
-    $ python object_detection_capture_opencv.py \
-    --model=<PATH_TO_edgetpu.tflite> \ 
-    --label=<PATH_TO_LABELS_TXT> \
-    --videopath=<PATH_TO_VIDEO_FILE>
-```
-- object_detection_capture_opencv.py(UVC Camera):<br>
-```
-    # Note: To open camera using default backend just pass 0.
-    $ python object_detection_capture_opencv.py \
-    --model=<PATH_TO_edgetpu.tflite> \
-    --label=<PATH_TO_LABELS_TXT> 
-```

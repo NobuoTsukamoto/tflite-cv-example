@@ -11,15 +11,18 @@
 """
 
 import argparse
+import time
 
 import cv2
 import numpy as np
-import PIL
-from edgetpu.detection.engine import DetectionEngine
-from utils import visualization as visual
-from utils.label_util import read_label_file
 
-WINDOW_NAME = "Edge TPU TF-lite object detection(OpenCV)"
+from pycoral.adapters import common, detect
+from pycoral.utils.dataset import read_label_file
+from pycoral.utils.edgetpu import make_interpreter
+
+from utils import visualization as visual
+
+WINDOW_NAME = "Edge TPU PyCoral object detection (OpenCV)"
 
 
 def main():
@@ -41,8 +44,9 @@ def main():
     )
     cv2.moveWindow(WINDOW_NAME, 100, 200)
 
-    # Initialize engine.
-    engine = DetectionEngine(args.model)
+    # Initialize engine and load labels.
+    interpreter = make_interpreter(args.model)
+    interpreter.allocate_tensors()
     labels = read_label_file(args.label) if args.label else None
 
     # Generate random colors.
@@ -51,42 +55,46 @@ def main():
 
     # Video capture.
     if args.videopath == "":
-        print("open camera.")
+        print("Open camera.")
         cap = cv2.VideoCapture(0)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
     else:
-        print("open video file", args.videopath)
+        print("Open video file: ", args.videopath)
         cap = cv2.VideoCapture(args.videopath)
+
+    cap_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    cap_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     elapsed_list = []
 
     while cap.isOpened():
         _, frame = cap.read()
         im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        input_buf = PIL.Image.fromarray(im)
 
         # Run inference.
-        ans = engine.detect_with_image(
-            input_buf,
-            threshold=args.threshold,
-            keep_aspect_ratio=False,
-            relative_coord=False,
-            top_k=args.top_k,
+        start = time.perf_counter()
+
+        _, scale = common.set_resized_input(
+            interpreter, (cap_width, cap_height), lambda size: cv2.resize(im, size)
         )
-        elapsed_ms = engine.get_inference_time()
+        interpreter.invoke()
+
+        elapsed_ms = (time.perf_counter() - start) * 1000
 
         # Display result.
-        if ans:
-            for obj in ans:
+        objects = detect.get_objects(interpreter, args.threshold, scale)
+        if objects:
+            for obj in objects:
                 label_name = "Unknown"
                 if labels:
-                    label_name = labels[obj.label_id]
+                    labels.get(obj.id, "Unknown")
+                    label_name = labels[obj.id]
                 caption = "{0}({1:.2f})".format(label_name, obj.score)
 
                 # Draw a rectangle and caption.
-                box = obj.bounding_box.flatten().tolist()
-                visual.draw_rectangle(frame, box, colors[obj.label_id])
+                box = (obj.bbox.xmin, obj.bbox.ymin, obj.bbox.xmax, obj.bbox.ymax)
+                visual.draw_rectangle(frame, box, colors[obj.id])
                 visual.draw_caption(frame, box, caption)
 
         # Calc fps.
