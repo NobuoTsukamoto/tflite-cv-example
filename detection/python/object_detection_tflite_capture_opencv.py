@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    TensorFlow Lit Object detection with OpenCV.
+    TensorFlow Lite Object detection with OpenCV.
 
     Copyright (c) 2020 Nobuo Tsukamoto
 

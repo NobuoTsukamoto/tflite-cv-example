@@ -31,7 +31,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
     parser.add_argument("--label", help="File path of label file.", required=True)
-    parser.add_argument("--top_k", help="keep top k candidates.", default=3)
     parser.add_argument(
         "--threshold", help="threshold to filter results.", default=0.5, type=float
     )
