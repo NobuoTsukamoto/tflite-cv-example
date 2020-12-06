@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    Edge TPU Super resolution(ESRGAN) benchmark with OpenCV.
+    TensorFlow Lite Super resolution(ESRGAN) benchmark with OpenCV.
 
     Copyright (c) 2020 Nobuo Tsukamoto
 
