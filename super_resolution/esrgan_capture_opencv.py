@@ -27,7 +27,7 @@ WINDOW_NAME = "TF-lite ESRGAN (OpenCV)"
 WHITE = (240, 250, 250)
 
 def drawTargetScope(frame, xmin, ymin, xmax, ymax):
-    # Display Target window
+    # Display Target Scorp
     points1 = np.array([(xmin, ymin + 15), (xmin, ymin), (xmin + 15, ymin)])
     cv2.polylines(frame, [points1], False, WHITE, thickness=2)
     points2 = np.array([(xmax - 15, ymin), (xmax, ymin), (xmax, ymin + 15)])
@@ -130,7 +130,6 @@ def main():
 
             x = xmax + 40
             y = ymin + 10 - output_height
-            frame[y : y + output_height, x : x + output_width] = sr_im
 
             points6 = np.array(
                 [
@@ -153,6 +152,7 @@ def main():
                 WHITE,
                 1,
             )
+            frame[y : y + output_height, x : x + output_width] = sr_im
             drawTargetScope(frame, xmin, ymin, xmax, ymax)
 
         else:
