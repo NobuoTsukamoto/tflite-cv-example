@@ -18,13 +18,28 @@ import time
 import cv2
 import numpy as np
 
-from utils import visualization as visual
+# from utils import visualization as visual
 from utils.tflite_util import (get_output_tensor, make_interpreter,
                                set_input_tensor)
 
 WINDOW_NAME = "TF-lite ESRGAN (OpenCV)"
 
 WHITE = (240, 250, 250)
+
+def drawTargetScope(frame, xmin, ymin, xmax, ymax):
+    # Display Target window
+    points1 = np.array([(xmin, ymin + 15), (xmin, ymin), (xmin + 15, ymin)])
+    cv2.polylines(frame, [points1], False, WHITE, thickness=2)
+    points2 = np.array([(xmax - 15, ymin), (xmax, ymin), (xmax, ymin + 15)])
+    cv2.polylines(frame, [points2], False, WHITE, thickness=2)
+    points3 = np.array([(xmax, ymax - 15), (xmax, ymax), (xmax - 15, ymax)])
+    cv2.polylines(frame, [points3], False, WHITE, thickness=2)
+    points4 = np.array([(xmin, ymax - 15), (xmin, ymax), (xmin + 15, ymax)])
+    cv2.polylines(frame, [points4], False, WHITE, thickness=2)
+    points5 = np.array(
+        [(xmax + 5, ymin - 5), (xmax + 25, ymin - 25), (xmax + 65, ymin - 25)]
+    )
+    cv2.polylines(frame, [points5], False, WHITE, thickness=2)
 
 
 def main():
@@ -66,7 +81,7 @@ def main():
 
     # Video capture.
     print("Open camera.")
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(-1)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
 
@@ -90,19 +105,6 @@ def main():
             print("VideoCapture read return false.")
             break
 
-        # Display Target window
-        points1 = np.array([(xmin, ymin + 15), (xmin, ymin), (xmin + 15, ymin)])
-        cv2.polylines(frame, [points1], False, WHITE, thickness=2)
-        points2 = np.array([(xmax - 15, ymin), (xmax, ymin), (xmax, ymin + 15)])
-        cv2.polylines(frame, [points2], False, WHITE, thickness=2)
-        points3 = np.array([(xmax, ymax - 15), (xmax, ymax), (xmax - 15, ymax)])
-        cv2.polylines(frame, [points3], False, WHITE, thickness=2)
-        points4 = np.array([(xmin, ymax - 15), (xmin, ymax), (xmin + 15, ymax)])
-        cv2.polylines(frame, [points4], False, WHITE, thickness=2)
-        points5 = np.array(
-            [(xmax + 5, ymin - 5), (xmax + 25, ymin - 25), (xmax + 65, ymin - 25)]
-        )
-        cv2.polylines(frame, [points5], False, WHITE, thickness=2)
 
         if is_super_resolution:
             im = frame[ymin:ymax, xmin:xmax]
@@ -124,7 +126,6 @@ def main():
             sr_im = sr_im.astype(np.uint8)
             sr_im = cv2.cvtColor(sr_im, cv2.COLOR_RGB2BGR)
 
-            sr_im = np.zeros((200, 200, 3), dtype=np.uint8)
             output_height, output_width = sr_im.shape[:2]
 
             x = xmax + 40
@@ -152,8 +153,10 @@ def main():
                 WHITE,
                 1,
             )
-        else:
+            drawTargetScope(frame, xmin, ymin, xmax, ymax)
 
+        else:
+            drawTargetScope(frame, xmin, ymin, xmax, ymax)
             cv2.putText(
                 frame,
                 "Target",
