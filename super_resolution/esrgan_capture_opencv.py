@@ -19,42 +19,19 @@ import cv2
 import numpy as np
 
 from utils import visualization as visual
-from utils.tflite_util import make_interpreter, set_input_tensor, get_output_tensor
-
+from utils.tflite_util import (get_output_tensor, make_interpreter,
+                               set_input_tensor)
 
 WINDOW_NAME = "TF-lite ESRGAN (OpenCV)"
 
-
-def get_output(interpreter, score_threshold):
-    """ Returns list of detected objects.
-
-    Args:
-        interpreter
-        score_threshold
-
-    Returns: bounding_box, class_id, score
-    """
-    # Get all output details
-    boxes = get_output_tensor(interpreter, 0)
-    class_ids = get_output_tensor(interpreter, 1)
-    scores = get_output_tensor(interpreter, 2)
-    count = int(get_output_tensor(interpreter, 3))
-
-    results = []
-    for i in range(count):
-        if scores[i] >= score_threshold:
-            result = {
-                "bounding_box": boxes[i],
-                "class_id": class_ids[i],
-                "score": scores[i],
-            }
-            results.append(result)
-    return results
+WHITE = (240, 250, 250)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", help="File path of TF-lite esrgan model.", required=True)
+    parser.add_argument(
+        "--model", help="File path of TF-lite esrgan model.", required=True
+    )
     parser.add_argument("--width", help="Resolution width.", default=640, type=int)
     parser.add_argument("--height", help="Resolution height.", default=480, type=int)
     parser.add_argument("--thread", help="Num threads.", default=2, type=int)
@@ -71,13 +48,21 @@ def main():
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
-    _, esrgan_height, esrgan_width, esrgan_channel = input_details[0]["shape"]
+    _, input_height, input_width, input_channel = input_details[0]["shape"]
+    _, output_height, output_width, output_channel = output_details[0]["shape"]
     print(
-        "ESRGAN interpreter(height, width, channel): ",
-        esrgan_height,
-        esrgan_width,
-        esrgan_channel,
+        "ESRGAN interpreter (%d, %d, %d) => (%d, %d, %d)."
+        % (
+            input_height,
+            input_width,
+            output_channel,
+            output_height,
+            output_width,
+            output_channel,
+        )
     )
+    model_name = os.path.splitext(os.path.basename(args.model))[0]
+    factor = output_height / input_width
 
     # Video capture.
     print("Open camera.")
@@ -90,11 +75,11 @@ def main():
     fps = cap.get(cv2.CAP_PROP_FPS)
     print("Camera Input(height, width, fps): ", camera_heigth, camera_width, fps)
 
-    # target 
+    # target
     is_super_resolution = False
-    xmin = (camera_width // 2) - (esrgan_width // 2)
-    xmax = xmin + esrgan_width
-    ymin = (camera_heigth // 2) - (esrgan_width // 2)
+    xmin = (camera_width // 2) - (input_width // 2)
+    xmax = xmin + input_width
+    ymin = (camera_heigth // 2) - (input_height // 2)
     ymax = ymin + 50
 
     elapsed_list = []
@@ -105,15 +90,33 @@ def main():
             print("VideoCapture read return false.")
             break
 
+        # Display Target window
+        points1 = np.array([(xmin, ymin + 15), (xmin, ymin), (xmin + 15, ymin)])
+        cv2.polylines(frame, [points1], False, WHITE, thickness=2)
+        points2 = np.array([(xmax - 15, ymin), (xmax, ymin), (xmax, ymin + 15)])
+        cv2.polylines(frame, [points2], False, WHITE, thickness=2)
+        points3 = np.array([(xmax, ymax - 15), (xmax, ymax), (xmax - 15, ymax)])
+        cv2.polylines(frame, [points3], False, WHITE, thickness=2)
+        points4 = np.array([(xmin, ymax - 15), (xmin, ymax), (xmin + 15, ymax)])
+        cv2.polylines(frame, [points4], False, WHITE, thickness=2)
+        points5 = np.array(
+            [(xmax + 5, ymin - 5), (xmax + 25, ymin - 25), (xmax + 65, ymin - 25)]
+        )
+        cv2.polylines(frame, [points5], False, WHITE, thickness=2)
+
         if is_super_resolution:
-            im = frame[ymin: ymax, xmin : xmax]
+            im = frame[ymin:ymax, xmin:xmax]
             im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-            im = im[np.newaxis,:,:,:]
+            im = im[np.newaxis, :, :, :]
             im = im.astype(np.float32)
 
-            interpreter.set_tensor(input_details[0]['index'], im.copy())
+            start = time.perf_counter()
+
+            interpreter.set_tensor(input_details[0]["index"], im.copy())
             interpreter.invoke()
-            output_data = interpreter.get_tensor(output_details[0]['index'])
+            output_data = interpreter.get_tensor(output_details[0]["index"])
+
+            inference_time = (time.perf_counter() - start) * 1000
 
             sr_im = np.squeeze(output_data, axis=0)
             sr_im = np.clip(sr_im, 0, 255)
@@ -121,15 +124,45 @@ def main():
             sr_im = sr_im.astype(np.uint8)
             sr_im = cv2.cvtColor(sr_im, cv2.COLOR_RGB2BGR)
 
-            print(sr_im.shape)
-
+            sr_im = np.zeros((200, 200, 3), dtype=np.uint8)
             output_height, output_width = sr_im.shape[:2]
-            x = (camera_width // 2) - (output_width // 2)
-            y = (camera_heigth // 2) - (output_height // 2)
-            frame[y:y+output_height, x:x+output_width] = sr_im
 
+            x = xmax + 40
+            y = ymin + 10 - output_height
+            frame[y : y + output_height, x : x + output_width] = sr_im
+
+            points6 = np.array(
+                [
+                    (x, y),
+                    (x + output_width, y),
+                    (x + output_width, y + output_height),
+                    (x, y + output_height),
+                ]
+            )
+            cv2.polylines(frame, [points6], True, WHITE, thickness=2)
+            cv2.putText(
+                frame,
+                model_name
+                + " (x"
+                + str(factor)
+                + ", {0:.2f}ms )".format(inference_time),
+                (x + 5, y - 5),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                WHITE,
+                1,
+            )
         else:
-            visual.draw_rectangle(frame, (xmin, ymin, xmax, ymax), (255, 255, 0))
+
+            cv2.putText(
+                frame,
+                "Target",
+                (xmax + 25, ymin - 30),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                WHITE,
+                1,
+            )
 
         # Display
         cv2.imshow(WINDOW_NAME, frame)
@@ -141,6 +174,7 @@ def main():
 
     # When everything done, release the window
     cap.release()
+
 
 if __name__ == "__main__":
     main()
