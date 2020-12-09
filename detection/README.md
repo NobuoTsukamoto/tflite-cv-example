@@ -14,7 +14,7 @@
 |[VC++](vc_tflite) | Visual C++ | Visual Studio 2019 (VC++) Sample.<br>TensorFlow Lite and TensorFlow Lite EdgeTPU delegate with Visual Studio. | TensorFlow Lite (EdgeTPU delegate) | Windows |
 <br>
 
-## Models
+# Models
 
 
 ## Coral Edge TPU models

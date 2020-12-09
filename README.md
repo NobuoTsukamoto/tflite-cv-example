@@ -1,13 +1,21 @@
 # Edge TPU / TF-Lite samples.
 
 ## About
-Coral Edge TPU / TensorFlow-Lite samples (Python/C++, Raspberry Pi/Windows/Linux).
- - [Object detection by PiCamera or Video Capture.](detection)
- - [Image classifilcation by PiCamera or Video Capture.](classify)
- - [Object camouflage by PiCamera.](camouflage) 
- - [Semantic Segmentation using DeepLab v3.](deeplab)
- - [Image segmentation by PiCamera](segmentation)
+TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux).
 
+## List of samples.
+
+| Name | Language | Description | API | OS |
+|:---|:---|:---|:---|:---|
+|[Camouflage](camouflage)| Python | Object detection and camouflage objects by PiCamera. | EdgeTPU API | Linux<br>(Raspberry Pi) |
+|[Classify](classify) | Python | Image classifilcation by PiCamera or Video Capture.| TF-Lite<br>EdgeTPU API | Linux<br>Windows |
+| [DeepLab](deeplab) | Python<br>C++ | Semantic Segmentation using DeepLab v3. | TF-Lite<BR>EdgeTPU API | Linux<br>Windows |
+| [Object detection](detection) | Python<br>C++<br>VC++ | Object detection by PiCamera or Video Capture. | TF-Lite<br>PyCoral | Linux<br>Windows |
+| [U-Net MobileNet v2](segmentation) | Python | Image segmentation model U-Net MobileNet v2. | TF-Lite | Linux<br>Windows 
+| [Super resolution](super_resolution) | Python | Super resolution using ESRGAN. | TF-Lite | Linux<br>Windows |
+
+
+## Images
 ![detection](detection/g3doc/img/output.gif)
 ![camouflage](camouflage/g3doc/img/output.gif)
 ![deeplab](deeplab/g3doc/img/output.gif)
@@ -21,14 +29,8 @@ Coral Edge TPU / TensorFlow-Lite samples (Python/C++, Raspberry Pi/Windows/Linux
 
 ## Installation
 - OpenCV with OpenCV's extra modules(3.4.5 or higher)
-- Edge TPU Python library [(Get started with the USB Accelerator)](https://coral.withgoogle.com/tutorials/accelerator/)
-
-## Usage
-Image classification:<br>
-``` $ python3 ./object_detection_capture_picamera.py --model=<PATH_TO_edgetpu.tflite> --label=<PATH_TO_LABELS_TXT>```
-
-Full command-line options:<br>
-``` $ python3 ./xxxx.py -h```
+- TensorFlow Lite Runtime [(Python quickstart)](https://www.tensorflow.org/lite/guide/python).
+- Edge TPU Python library [(Get started with the USB Accelerator)](https://coral.withgoogle.com/tutorials/accelerator/).
 
 ## Reference
 - [Get started with the USB Accelerator](https://coral.withgoogle.com/tutorials/accelerator/)
