@@ -9,7 +9,9 @@ Only the TensorFlow Lite(FP32, FP16, INT8) model.
 ## Usage
 - image_segmentation_tflite_capture_opencv.py:<br>
 ``` 
-    # move to edge_tpu/super_resolution
+    # Move to edge_tpu/super_resolution
+    # Use the space key to switch modes.
+    # Normal(Not super resolution) => Super resolution (ESRGAN) => Resize (Bicubic) => Normal ...
 
-    $ $ python esrgan_capture_opencv.py --model model/ESRGAN.tflite --thread 4
+    $ python esrgan_capture_opencv.py --model model/ESRGAN.tflite --thread 4
 ```

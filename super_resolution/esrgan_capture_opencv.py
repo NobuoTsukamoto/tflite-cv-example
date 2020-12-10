@@ -14,19 +14,23 @@ import argparse
 import os
 import random
 import time
+from itertools import cycle
 
 import cv2
 import numpy as np
 
-# from utils import visualization as visual
-from utils.tflite_util import (get_output_tensor, make_interpreter,
-                               set_input_tensor)
+from utils.tflite_util import get_output_tensor, make_interpreter, set_input_tensor
 
 WINDOW_NAME = "TF-lite ESRGAN (OpenCV)"
 
 WHITE = (240, 250, 250)
 
-def drawTargetScope(frame, xmin, ymin, xmax, ymax):
+MODE = cycle(["normal", "esrgan", "resize"])
+
+
+def drawTargetScope(
+    frame, xmin, ymin, xmax, ymax,
+):
     # Display Target Scorp
     points1 = np.array([(xmin, ymin + 15), (xmin, ymin), (xmin + 15, ymin)])
     cv2.polylines(frame, [points1], False, WHITE, thickness=2)
@@ -81,7 +85,7 @@ def main():
 
     # Video capture.
     print("Open camera.")
-    cap = cv2.VideoCapture(-1)
+    cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
 
@@ -99,19 +103,22 @@ def main():
 
     elapsed_list = []
 
+    mode = next(MODE)
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             print("VideoCapture read return false.")
             break
 
-
-        if is_super_resolution:
+        if mode == "esrgan":
+            # Create input
             im = frame[ymin:ymax, xmin:xmax]
             im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
             im = im[np.newaxis, :, :, :]
             im = im.astype(np.float32)
 
+            # Run inference.
             start = time.perf_counter()
 
             interpreter.set_tensor(input_details[0]["index"], im.copy())
@@ -120,18 +127,17 @@ def main():
 
             inference_time = (time.perf_counter() - start) * 1000
 
+            # Display result.
             sr_im = np.squeeze(output_data, axis=0)
             sr_im = np.clip(sr_im, 0, 255)
             sr_im = np.round(sr_im)
             sr_im = sr_im.astype(np.uint8)
             sr_im = cv2.cvtColor(sr_im, cv2.COLOR_RGB2BGR)
 
-            output_height, output_width = sr_im.shape[:2]
-
             x = xmax + 40
             y = ymin + 10 - output_height
 
-            points6 = np.array(
+            points = np.array(
                 [
                     (x, y),
                     (x + output_width, y),
@@ -139,7 +145,7 @@ def main():
                     (x, y + output_height),
                 ]
             )
-            cv2.polylines(frame, [points6], True, WHITE, thickness=2)
+            cv2.polylines(frame, [points], True, WHITE, thickness=2)
             cv2.putText(
                 frame,
                 model_name
@@ -153,6 +159,36 @@ def main():
                 1,
             )
             frame[y : y + output_height, x : x + output_width] = sr_im
+            drawTargetScope(frame, xmin, ymin, xmax, ymax)
+
+        elif mode == "resize":
+            im = frame[ymin:ymax, xmin:xmax]
+            resize_im = cv2.resize(
+                im, (output_height, output_width), interpolation=cv2.INTER_CUBIC
+            )
+
+            x = xmax + 40
+            y = ymin + 10 - output_height
+
+            points = np.array(
+                [
+                    (x, y),
+                    (x + output_width, y),
+                    (x + output_width, y + output_height),
+                    (x, y + output_height),
+                ]
+            )
+            cv2.polylines(frame, [points], True, WHITE, thickness=2)
+            cv2.putText(
+                frame,
+                " Bicubic (x" + str(factor) + ")",
+                (x + 5, y - 5),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                WHITE,
+                1,
+            )
+            frame[y : y + output_height, x : x + output_width] = resize_im
             drawTargetScope(frame, xmin, ymin, xmax, ymax)
 
         else:
@@ -173,7 +209,8 @@ def main():
         if key == ord("q"):
             break
         elif key == ord(" "):
-            is_super_resolution = not is_super_resolution
+            mode = next(MODE)
+            print("Now Mode: ", mode)
 
     # When everything done, release the window
     cap.release()
