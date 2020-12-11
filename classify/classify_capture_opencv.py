@@ -4,7 +4,7 @@
 """
     Edge TPU image classify with OpenCV.
 
-    Copyright (c) 22020 Nobuo Tsukamoto
+    Copyright (c) 2020 Nobuo Tsukamoto
 
     This software is released under the MIT License.
     See the LICENSE file in the project root for more information.
@@ -12,13 +12,11 @@
 import argparse
 import time
 
-import numpy as np
-
-import edgetpu.classification.engine
-
 import cv2
-import PIL
-
+import numpy as np
+from pycoral.adapters import classify, common
+from pycoral.utils.dataset import read_label_file
+from pycoral.utils.edgetpu import make_interpreter
 from utils import visualization as visual
 
 WINDOW_NAME = "Edge TPU Image classification"
@@ -34,16 +32,14 @@ def main():
     parser.add_argument("--videopath", help="File path of Videofile.", default="")
     args = parser.parse_args()
 
-    with open(args.label, "r") as f:
-        pairs = (l.strip().split(maxsplit=1) for l in f.readlines())
-        labels = dict((int(k), v) for k, v in pairs)
-
     # Initialize window.
     cv2.namedWindow(WINDOW_NAME)
     cv2.moveWindow(WINDOW_NAME, 100, 200)
 
-    # Initialize engine.
-    engine = edgetpu.classification.engine.ClassificationEngine(args.model)
+    # Initialize engine and load labels.
+    interpreter = make_interpreter(args.model)
+    interpreter.allocate_tensors()
+    labels = read_label_file(args.label) if args.label else None
 
     # Video capture.
     if args.videopath == "":
@@ -55,17 +51,25 @@ def main():
         print(args.videopath)
         cap = cv2.VideoCapture(args.videopath)
 
+    cap_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    cap_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
     elapsed_list = []
 
     while cap.isOpened():
         _, frame = cap.read()
         im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        input_buf = PIL.Image.fromarray(im)
 
-        results = engine.classify_with_image(input_buf, top_k=args.top_k)
-        elapsed_ms = engine.get_inference_time()
+        # Run inference.
+        start = time.perf_counter()
+
+        _, scale = common.set_resized_input(
+            interpreter, (cap_width, cap_height), lambda size: cv2.resize(im, size)
+        )
+        interpreter.invoke()
 
         # Check result.
+        results = classify.get_classes(interpreter, args.top_k, args.threshold)
         if results:
             for i in range(len(results)):
                 label = "{0} ({1:.2f})".format(labels[results[i][0]], results[i][1])

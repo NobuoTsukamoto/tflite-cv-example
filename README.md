@@ -1,4 +1,4 @@
-# Edge TPU / TF-Lite samples.
+# TensorFlow Lite, Coral Edge TPU samples.
 
 ## About
 TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux).
@@ -7,8 +7,8 @@ TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux)
 
 | Name | Language | Description | API | OS |
 |:---|:---|:---|:---|:---|
-|[Camouflage](camouflage)| Python | Object detection and camouflage objects by PiCamera. | EdgeTPU API | Linux<br>(Raspberry Pi) |
-|[Classify](classify) | Python | Image classifilcation by PiCamera or Video Capture.| TF-Lite<br>EdgeTPU API | Linux<br>Windows |
+|[Camouflage](camouflage)| Python | Object detection and camouflage objects by PiCamera. | PyCoral | Linux<br>(Raspberry Pi) |
+|[Classify](classify) | Python | Image classifilcation by PiCamera or Video Capture.| TF-Lite<br>PyCoral | Linux<br>Windows |
 | [DeepLab](deeplab) | Python<br>C++ | Semantic Segmentation using DeepLab v3. | TF-Lite<BR>EdgeTPU API | Linux<br>Windows |
 | [Object detection](detection) | Python<br>C++<br>VC++ | Object detection by PiCamera or Video Capture. | TF-Lite<br>PyCoral | Linux<br>Windows |
 | [U-Net MobileNet v2](segmentation) | Python | Image segmentation model U-Net MobileNet v2. | TF-Lite | Linux<br>Windows 

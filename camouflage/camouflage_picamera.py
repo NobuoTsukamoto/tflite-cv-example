@@ -14,36 +14,21 @@ import argparse
 import io
 import time
 
+import cv2
 import numpy as np
 import picamera
 from picamera.array import PiRGBArray
-
-from edgetpu.detection.engine import DetectionEngine
-
-import cv2
-import PIL
-
+from pycoral.adapters import common, detect
+from pycoral.utils.dataset import read_label_file
+from pycoral.utils.edgetpu import make_interpreter
 from utils import visualization as visual
 
 WINDOW_NAME = "Inpaint Pi Camera"
-
-# Function to read labels from text files.
-def ReadLabelFile(file_path):
-    with open(file_path, "r") as f:
-        lines = f.readlines()
-
-    ret = {}
-    for line in lines:
-        pair = line.strip().split(maxsplit=1)
-        ret[int(pair[0])] = pair[1].strip()
-    return ret
-
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
     parser.add_argument("--label", help="File path of label file.", required=True)
-    parser.add_argument("--top_k", help="keep top k candidates.", default=3)
     parser.add_argument(
         "--threshold", help="threshold to filter results.", type=float, default=0.5
     )
@@ -57,9 +42,10 @@ def main():
     )
     cv2.moveWindow(WINDOW_NAME, 100, 200)
 
-    # Initialize engine.
-    engine = DetectionEngine(args.model)
-    labels = ReadLabelFile(args.label) if args.label else None
+    # Initialize engine and load labels.
+    interpreter = make_interpreter(args.model)
+    interpreter.allocate_tensors()
+    labels = read_label_file(args.label) if args.label else None
 
     # Generate random colors.
     last_key = sorted(labels.keys())[len(labels.keys()) - 1]
@@ -87,23 +73,22 @@ def main():
                 rawCapture.truncate(0)
 
                 image = frame.array
-                im = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-                input_buf = PIL.Image.fromarray(image)
 
                 # Run inference.
-                ans = engine.DetectWithImage(
-                    input_buf,
-                    threshold=args.threshold,
-                    keep_aspect_ratio=False,
-                    relative_coord=False,
-                    top_k=args.top_k,
+                start = time.perf_counter()
+
+                _, scale = common.set_resized_input(
+                    interpreter, (resolution_width, rezolution_height), lambda size: cv2.resize(image, size)
                 )
+                interpreter.invoke()
 
                 # Display result.
+                objects = detect.get_objects(interpreter, args.threshold, scale)
+
                 if is_inpaint_mode == True:
                     mask = np.full((args.height, args.width), 0, dtype=np.uint8)
                     if ans:
-                        for obj in ans:
+                        for obj in objects:
                             if labels and obj.label_id in labels:
                                 # Draw a mask rectangle.
                                 box = obj.bounding_box.flatten().tolist()
@@ -116,7 +101,7 @@ def main():
                     # dst = cv2.inpaint(im, mask,3,cv2.INPAINT_NS)
 
                 else:
-                    for obj in ans:
+                    for obj in objects:
                         if labels and obj.label_id in labels:
                             label_name = labels[obj.label_id]
                             caption = "{0}({1:.2f})".format(label_name, obj.score)

@@ -17,7 +17,9 @@ import numpy as np
 import picamera
 from picamera.array import PiRGBArray
 
-import edgetpu.classification.engine
+from pycoral.adapters import classify, common
+from pycoral.utils.dataset import read_label_file
+from pycoral.utils.edgetpu import make_interpreter
 
 import cv2
 import PIL
@@ -44,21 +46,25 @@ def main():
     cv2.namedWindow(WINDOW_NAME)
     cv2.moveWindow(WINDOW_NAME, 100, 200)
 
-    # Initialize engine.
-    engine = edgetpu.classification.engine.ClassificationEngine(args.model)
+    # Initialize engine and load labels.
+    interpreter = make_interpreter(args.model)
+    interpreter.allocate_tensors()
+    labels = read_label_file(args.label) if args.label else None
 
-    width = args.width
-    height = args.height
     elapsed_list = []
+    resolution_width = args.width
+    rezolution_height = args.height
+
     with picamera.PiCamera() as camera:
-        camera.resolution = (width, height)
+        camera.resolution = (resolution_width, rezolution_height)
         camera.framerate = 30
-        # _, width, height, channels = engine.get_input_tensor_shape()
+        _, width, height, channels = engine.get_input_tensor_shape()
 
         rawCapture = PiRGBArray(camera)
 
         # allow the camera to warmup
         time.sleep(0.1)
+
         try:
             for frame in camera.capture_continuous(
                 rawCapture, format="rgb", use_video_port=True
@@ -67,13 +73,21 @@ def main():
 
                 image = frame.array
                 im = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-                input_buf = PIL.Image.fromarray(image)
 
-                start_ms = time.time()
-                results = engine.ClassifyWithImage(input_buf, top_k=args.top_k)
-                elapsed_ms = time.time() - start_ms
+                # Run inference.
+                start = time.perf_counter()
+
+                _, scale = common.set_resized_input(
+                    interpreter,
+                    (resolution_width, rezolution_height),
+                    lambda size: cv2.resize(image, size),
+                )
+                interpreter.invoke()
+
+                elapsed_ms = engine.get_inference_time()
 
                 # Check result.
+                results = classify.get_classes(interpreter, args.top_k, args.threshold)
                 if results:
                     for i in range(len(results)):
                         label = "{0} ({1:.2f})".format(

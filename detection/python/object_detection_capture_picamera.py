@@ -72,7 +72,6 @@ def main():
             ):
                 rawCapture.truncate(0)
 
-                # input_buf = np.frombuffer(stream.getvalue(), dtype=np.uint8)
                 image = frame.array
                 im = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
@@ -84,7 +83,6 @@ def main():
                 )
                 interpreter.invoke()
 
-                )
                 elapsed_ms = engine.get_inference_time()
 
                 # Display result.
