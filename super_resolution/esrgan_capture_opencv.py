@@ -29,7 +29,7 @@ MODE = cycle(["normal", "esrgan", "resize"])
 
 
 def drawTargetScope(
-    frame, xmin, ymin, xmax, ymax,
+    frame, xmin, ymin, xmax, ymax, is_draw_text=True
 ):
     # Display Target Scorp
     points1 = np.array([(xmin, ymin + 15), (xmin, ymin), (xmin + 15, ymin)])
@@ -40,9 +40,14 @@ def drawTargetScope(
     cv2.polylines(frame, [points3], False, WHITE, thickness=2)
     points4 = np.array([(xmin, ymax - 15), (xmin, ymax), (xmin + 15, ymax)])
     cv2.polylines(frame, [points4], False, WHITE, thickness=2)
-    points5 = np.array(
-        [(xmax + 5, ymin - 5), (xmax + 25, ymin - 25), (xmax + 65, ymin - 25)]
-    )
+    if is_draw_text:
+        points5 = np.array(
+            [(xmax + 5, ymin - 5), (xmax + 25, ymin - 25), (xmax + 65, ymin - 25)]
+        )
+    else:
+        points5 = np.array(
+            [(xmax + 5, ymin - 5), (xmax + 25, ymin - 25), (xmax + 40, ymin - 25)]
+        )
     cv2.polylines(frame, [points5], False, WHITE, thickness=2)
 
 
@@ -85,7 +90,7 @@ def main():
 
     # Video capture.
     print("Open camera.")
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(-1)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
 
@@ -136,6 +141,7 @@ def main():
 
             x = xmax + 40
             y = ymin + 10 - output_height
+            frame[y : y + output_height, x : x + output_width] = sr_im
 
             points = np.array(
                 [
@@ -158,8 +164,7 @@ def main():
                 WHITE,
                 1,
             )
-            frame[y : y + output_height, x : x + output_width] = sr_im
-            drawTargetScope(frame, xmin, ymin, xmax, ymax)
+            drawTargetScope(frame, xmin, ymin, xmax, ymax, False)
 
         elif mode == "resize":
             im = frame[ymin:ymax, xmin:xmax]
@@ -169,6 +174,7 @@ def main():
 
             x = xmax + 40
             y = ymin + 10 - output_height
+            frame[y : y + output_height, x : x + output_width] = resize_im
 
             points = np.array(
                 [
@@ -188,8 +194,7 @@ def main():
                 WHITE,
                 1,
             )
-            frame[y : y + output_height, x : x + output_width] = resize_im
-            drawTargetScope(frame, xmin, ymin, xmax, ymax)
+            drawTargetScope(frame, xmin, ymin, xmax, ymax, False)
 
         else:
             drawTargetScope(frame, xmin, ymin, xmax, ymax)
