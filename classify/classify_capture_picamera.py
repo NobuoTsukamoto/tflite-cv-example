@@ -49,7 +49,7 @@ def main():
     # Initialize engine and load labels.
     interpreter = make_interpreter(args.model)
     interpreter.allocate_tensors()
-    labels = read_label_file(args.label) if args.label else None
+    width, height = common.input_size(interpreter)
 
     elapsed_list = []
     resolution_width = args.width
@@ -58,7 +58,6 @@ def main():
     with picamera.PiCamera() as camera:
         camera.resolution = (resolution_width, rezolution_height)
         camera.framerate = 30
-        _, width, height, channels = engine.get_input_tensor_shape()
 
         rawCapture = PiRGBArray(camera)
 
@@ -84,7 +83,7 @@ def main():
                 )
                 interpreter.invoke()
 
-                elapsed_ms = engine.get_inference_time()
+                elapsed_ms = (time.perf_counter() - start) * 1000
 
                 # Check result.
                 results = classify.get_classes(interpreter, args.top_k, args.threshold)

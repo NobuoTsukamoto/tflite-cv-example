@@ -60,7 +60,6 @@ def main():
 
         camera.resolution = (resolution_width, rezolution_height)
         camera.framerate = 30
-        _, width, height, channels = engine.get_input_tensor_shape()
         rawCapture = PiRGBArray(camera)
 
         # allow the camera to warmup
@@ -83,7 +82,7 @@ def main():
                 )
                 interpreter.invoke()
 
-                elapsed_ms = engine.get_inference_time()
+                elapsed_ms = (time.perf_counter() - start) * 1000
 
                 # Display result.
 		        objects = detect.get_objects(interpreter, args.threshold, scale)

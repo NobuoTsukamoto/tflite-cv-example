@@ -14,43 +14,17 @@ import io
 import os
 import time
 
-import numpy as np
-from PIL import Image
-
 import cv2
+import numpy as np
 import picamera
-from edgetpu.basic.basic_engine import BasicEngine
 from picamera.array import PiRGBArray
+from PIL import Image
+from pycoral.adapters import common, segment
+from pycoral.utils.edgetpu import make_interpreter
 from utils import label_util
 from utils import visualization as visual
 
 WINDOW_NAME = "Edge TPU Segmentation"
-
-LABEL_NAMES = np.asarray(
-    [
-        "background",
-        "aeroplane",
-        "bicycle",
-        "bird",
-        "boat",
-        "bottle",
-        "bus",
-        "car",
-        "cat",
-        "chair",
-        "cow",
-        "diningtable",
-        "dog",
-        "horse",
-        "motorbike",
-        "person",
-        "pottedplant",
-        "sheep",
-        "sofa",
-        "train",
-        "tv",
-    ]
-)
 
 
 def main():
@@ -58,8 +32,6 @@ def main():
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
     parser.add_argument("--width", help="Resolution width.", default=640)
     parser.add_argument("--height", help="Resolution height.", default=480)
-    # parser.add_argument(
-    #    '--label', help='File path of label file.', required=True)
     args = parser.parse_args()
 
     # Initialize window.
@@ -72,7 +44,9 @@ def main():
     colormap = label_util.create_pascal_label_colormap()
 
     # Initialize engine.
-    engine = BasicEngine(args.model)
+    interpreter = make_interpreter(args.model)
+    interpreter.allocate_tensors()
+    width, height = common.input_size(interpreter)
 
     resolution_width = args.width
     rezolution_height = args.height
@@ -80,7 +54,6 @@ def main():
 
         camera.resolution = (resolution_width, rezolution_height)
         camera.framerate = 30
-        _, width, height, _ = engine.get_input_tensor_shape()
         rawCapture = PiRGBArray(camera)
 
         # allow the camera to warmup
@@ -90,24 +63,27 @@ def main():
             for frame in camera.capture_continuous(
                 rawCapture, format="rgb", use_video_port=True
             ):
-                start_ms = time.time()
 
                 rawCapture.truncate(0)
+
                 image = frame.array
+                im = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+                start = time.perf_counter()
 
                 # Create inpute tensor
                 # camera resolution (640, 480) => input tensor size (513, 513)
-                input_buf = Image.fromarray(image)
-                input_buf = input_buf.resize((width, height), Image.NEAREST)
-                input_tensor = np.asarray(input_buf).flatten()
+                resized_im = cv2.cv2.resize(image, (width, height))
+                common.set_input(interpreter, resized_im)
 
-                # Run inference
-                latency, result = engine.RunInference(input_tensor)
+                # Run inference.
+                interpreter.invoke()
 
                 # Create segmentation map
-                seg_map = np.array(result, dtype=np.uint8)
-                seg_map = np.reshape(seg_map, (width, height))
+                result = segment.get_output(interpreter)
+                seg_map = result[:height, :width]
                 seg_image = label_util.label_to_color_image(colormap, seg_map)
+
                 # segmentation map resize 513, 513 => camera resolution(640, 480)
                 seg_image = cv2.resize(seg_image, (resolution_width, rezolution_height))
                 out_image = image // 2 + seg_image // 2

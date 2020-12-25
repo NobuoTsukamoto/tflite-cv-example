@@ -15,24 +15,22 @@ import os
 import time
 
 import numpy as np
-from PIL import Image
-
-import cv2
-from edgetpu.basic.basic_engine import BasicEngine
-from utils import visualization as visual
+from pycoral.adapters import common, segment
+from pycoral.utils.edgetpu import make_interpreter
 from utils import label_util
+from utils import visualization as visual
 
-WINDOW_NAME = 'Edge TPU Segmentation'
+WINDOW_NAME = "Edge TPU Segmentation"
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', help='File path of Tflite model.', required=True)
-    parser.add_argument('--width', help='Resolution width.', default=640, type=int)
-    parser.add_argument('--height', help='Resolution height.', default=480, type=int)
-    parser.add_argument('--nano', help='Works with JETSON Nao and Pi Camera.', action='store_true')
-    # parser.add_argument(
-    #    '--label', help='File path of label file.', required=True)
+    parser.add_argument("--model", help="File path of Tflite model.", required=True)
+    parser.add_argument("--width", help="Resolution width.", default=640, type=int)
+    parser.add_argument("--height", help="Resolution height.", default=480, type=int)
+    parser.add_argument(
+        "--nano", help="Works with JETSON Nao and Pi Camera.", action="store_true"
+    )
     args = parser.parse_args()
 
     # Initialize window.
@@ -45,15 +43,18 @@ def main():
     colormap = label_util.create_pascal_label_colormap()
 
     # Initialize engine.
-    engine = BasicEngine(args.model)
-    _, width, height, _ = engine.get_input_tensor_shape()
+    interpreter = make_interpreter(args.model)
+    interpreter.allocate_tensors()
+    width, height = common.input_size(interpreter)
 
     if args.nano == True:
-        GST_STR = 'nvarguscamerasrc \
+        GST_STR = "nvarguscamerasrc \
             ! video/x-raw(memory:NVMM), width={0:d}, height={1:d}, format=(string)NV12, framerate=(fraction)30/1 \
             ! nvvidconv flip-method=2 !  video/x-raw, width=(int){2:d}, height=(int){3:d}, format=(string)BGRx \
             ! videoconvert \
-            ! appsink'.format(args.width, args.height, args.width, args.height)
+            ! appsink".format(
+            args.width, args.height, args.width, args.height
+        )
         cap = cv2.VideoCapture(GST_STR, cv2.CAP_GSTREAMER)
 
     else:
@@ -61,23 +62,23 @@ def main():
         cap.set(3, args.width)
         cap.set(4, args.height)
 
-    while(cap.isOpened()):
+    while cap.isOpened():
         _, frame = cap.read()
 
         start_ms = time.time()
 
         # Create inpute tensor
         # camera resolution  => input tensor size (513, 513)
-        input_buf = cv2.resize(frame, (width, height))
-        input_buf = cv2.cvtColor(input_buf, cv2.COLOR_BGR2RGB)
-        input_tensor = input_buf.flatten()
+        input_buf = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        resized_im = cv2.cv2.resize(input_buf, (width, height))
+        common.set_input(interpreter, resized_im)
 
         # Run inference
-        latency, result = engine.RunInference(input_tensor)
+        interpreter.invoke()
 
         # Create segmentation map
-        seg_map = np.array(result, dtype=np.uint8)
-        seg_map = np.reshape(seg_map, (width, height))
+        result = segment.get_output(interpreter)
+        seg_map = result[:height, :width]
         seg_image = label_util.label_to_color_image(colormap, seg_map)
 
         # segmentation map resize 513, 513 => camera resolution
@@ -89,22 +90,19 @@ def main():
 
         # Calc fps.
         fps = 1 / elapsed_ms
-        fps_text = '{0:.2f}ms, {1:.2f}fps'.format((elapsed_ms * 1000.0), fps)
+        fps_text = "{0:.2f}ms, {1:.2f}fps".format((elapsed_ms * 1000.0), fps)
         visual.draw_caption(im, (10, 30), fps_text)
-
-        latency_text = 'RunInference latency: {0:.2f}ms'.format(latency)
-        visual.draw_caption(im, (10, 60), latency_text)
 
         # Display image
         cv2.imshow(WINDOW_NAME, im)
         key = cv2.waitKey(10) & 0xFF
-        if key == ord('q'):
+        if key == ord("q"):
             break
 
         if args.nano != True:
             for i in range(10):
                 ret, frame = cap.read()
-                
+
     # When everything done, release the window
     cap.release()
     cv2.destroyAllWindows()
