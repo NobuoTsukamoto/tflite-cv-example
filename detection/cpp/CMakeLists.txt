@@ -51,10 +51,10 @@ message(STATUS "Architecture: ${ARCHITECTURE}")
 
 # Link your application with Tensorflow Lite
 if( ${ARCHITECTURE} STREQUAL "armv7l" )
-    target_link_libraries(tflite_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/lib/libtensorflow-lite_arm32.a)
+    target_link_libraries(tflite_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../../tensorflow/tensorflow/lite/tools/make/gen/rpi_armv7l/lib/libtensorflow-lite.a)
     target_link_libraries(tflite_detection LINK_PRIVATE /usr/lib/arm-linux-gnueabihf/libedgetpu.so.1)
 else()
-    target_link_libraries(tflite_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/lib/libtensorflow-lite_arm64.a)
+    target_link_libraries(tflite_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../../tensorflow/tensorflow/lite/tools/make/gen/linux_aarch64/lib/libtensorflow-lite.a)
     target_link_libraries(tflite_detection LINK_PRIVATE /usr/lib/aarch64-linux-gnu/libedgetpu.so.1)
 endif()
 
@@ -72,6 +72,6 @@ if(LIBDL)
 endif()
 
 target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR})
-target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/edgetpu/libedgetpu)
-target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/tensorflow/)
-target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)
+target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/../../libedgetpu/tflite/public)
+target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/../../tensorflow/)
+target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/../../tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)

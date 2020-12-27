@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) try
         cv::imshow(kWindowName, frame);
         // Handle the keyboard before moving to the next frame
         const int key = cv::waitKey(1);
-        if (key == 27)
+        if (key == 27 || key == 'q')
         {
             break;  // Escape
         }

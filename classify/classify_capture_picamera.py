@@ -34,6 +34,7 @@ def main():
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
     parser.add_argument("--label", help="File path of label file.", required=True)
     parser.add_argument("--top_k", help="keep top k candidates.", default=3, type=int)
+    parser.add_argument("--threshold", help="Score threshold.", default=0.0, type=float)
     parser.add_argument("--width", help="Resolution width.", default=640, type=int)
     parser.add_argument("--height", help="Resolution height.", default=480, type=int)
     args = parser.parse_args()
@@ -83,10 +84,10 @@ def main():
                 )
                 interpreter.invoke()
 
+                results = classify.get_classes(interpreter, args.top_k, args.threshold)
                 elapsed_ms = (time.perf_counter() - start) * 1000
 
                 # Check result.
-                results = classify.get_classes(interpreter, args.top_k, args.threshold)
                 if results:
                     for i in range(len(results)):
                         label = "{0} ({1:.2f})".format(
@@ -96,7 +97,7 @@ def main():
                         visual.draw_caption(im, (10, pos), label)
 
                 # Calc fps.
-                fps = 1 / elapsed_ms
+                fps = 1 / elapsed_ms * 1000
                 elapsed_list.append(elapsed_ms)
                 avg_text = ""
                 if len(elapsed_list) > 100:

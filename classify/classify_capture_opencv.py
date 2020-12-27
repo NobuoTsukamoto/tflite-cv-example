@@ -27,6 +27,7 @@ def main():
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
     parser.add_argument("--label", help="File path of label file.", required=True)
     parser.add_argument("--top_k", help="keep top k candidates.", default=3, type=int)
+    parser.add_argument("--threshold", help="Score threshold.", default=0.0, type=float)
     parser.add_argument("--width", help="Resolution width.", default=640, type=int)
     parser.add_argument("--height", help="Resolution height.", default=480, type=int)
     parser.add_argument("--videopath", help="File path of Videofile.", default="")
@@ -44,7 +45,7 @@ def main():
     # Video capture.
     if args.videopath == "":
         print("open camera.")
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(-1)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
     else:
@@ -70,14 +71,15 @@ def main():
 
         # Check result.
         results = classify.get_classes(interpreter, args.top_k, args.threshold)
+        elapsed_ms = (time.perf_counter() - start) * 1000
         if results:
             for i in range(len(results)):
                 label = "{0} ({1:.2f})".format(labels[results[i][0]], results[i][1])
                 pos = 60 + (i * 30)
-                visual.draw_caption(im, (10, pos), label)
+                visual.draw_caption(frame, (10, pos), label)
 
         # Calc fps.
-        fps = 1 / elapsed_ms
+        fps = 1 / elapsed_ms * 1000
         elapsed_list.append(elapsed_ms)
         avg_text = ""
         if len(elapsed_list) > 100:
@@ -88,10 +90,10 @@ def main():
 
         # Display fps
         fps_text = "{0:.2f}ms, {1:.2f}fps".format(elapsed_ms, fps)
-        visual.draw_caption(im, (10, 30), fps_text + avg_text)
+        visual.draw_caption(frame, (10, 30), fps_text + avg_text)
 
         # display
-        cv2.imshow(WINDOW_NAME, im)
+        cv2.imshow(WINDOW_NAME, frame)
         if cv2.waitKey(10) & 0xFF == ord("q"):
             break
 
