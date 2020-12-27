@@ -7,3 +7,9 @@
 [submodule "detection/vc_tflite/libedgetpu"]
 	path = detection/vc_tflite/libedgetpu
 	url = https://github.com/NobuoTsukamoto/libedgetpu.git
+[submodule "libedgetpu"]
+	path = libedgetpu
+	url = https://github.com/google-coral/libedgetpu.git
+[submodule "tensorflow"]
+	path = tensorflow
+	url = https://github.com/tensorflow/tensorflow.git
