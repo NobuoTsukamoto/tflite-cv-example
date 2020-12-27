@@ -14,6 +14,7 @@ import io
 import os
 import time
 
+import cv2
 import numpy as np
 from pycoral.adapters import common, segment
 from pycoral.utils.edgetpu import make_interpreter
@@ -62,19 +63,25 @@ def main():
         cap.set(3, args.width)
         cap.set(4, args.height)
 
+    cap_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    cap_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
     while cap.isOpened():
         _, frame = cap.read()
 
-        start_ms = time.time()
+        start = time.perf_counter()
 
         # Create inpute tensor
         # camera resolution  => input tensor size (513, 513)
         input_buf = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        resized_im = cv2.cv2.resize(input_buf, (width, height))
-        common.set_input(interpreter, resized_im)
+        _, scale = common.set_resized_input(
+            interpreter, (cap_width, cap_height), lambda size: cv2.resize(input_buf, size)
+        )
 
         # Run inference
         interpreter.invoke()
+
+        elapsed_ms = (time.perf_counter() - start) * 1000
 
         # Create segmentation map
         result = segment.get_output(interpreter)
@@ -86,11 +93,9 @@ def main():
         im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) // 2 + seg_image // 2
         im = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
 
-        elapsed_ms = time.time() - start_ms
-
         # Calc fps.
-        fps = 1 / elapsed_ms
-        fps_text = "{0:.2f}ms, {1:.2f}fps".format((elapsed_ms * 1000.0), fps)
+        fps = 1000. / elapsed_ms
+        fps_text = "{0:.2f}ms, {1:.2f}fps".format(elapsed_ms, fps)
         visual.draw_caption(im, (10, 30), fps_text)
 
         # Display image

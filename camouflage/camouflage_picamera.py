@@ -58,7 +58,6 @@ def main():
 
         camera.resolution = (resolution_width, rezolution_height)
         camera.framerate = 30
-        _, width, height, channels = engine.get_input_tensor_shape()
         rawCapture = PiRGBArray(camera)
 
         # allow the camera to warmup
@@ -73,6 +72,7 @@ def main():
                 rawCapture.truncate(0)
 
                 image = frame.array
+                im = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
                 # Run inference.
                 start = time.perf_counter()
@@ -87,14 +87,13 @@ def main():
 
                 if is_inpaint_mode == True:
                     mask = np.full((args.height, args.width), 0, dtype=np.uint8)
-                    if ans:
-                        for obj in objects:
-                            if labels and obj.label_id in labels:
-                                # Draw a mask rectangle.
-                                box = obj.bounding_box.flatten().tolist()
-                                visual.draw_rectangle(
-                                    mask, box, (255, 255, 255), thickness=-1
-                                )
+                    for obj in objects:
+                        if labels and obj.id in labels:
+                            # Draw a mask rectangle.
+                            box = (obj.bbox.xmin, obj.bbox.ymin, obj.bbox.xmax, obj.bbox.ymax)
+                            visual.draw_rectangle(
+                                mask, box, (255, 255, 255), thickness=-1
+                            )
 
                     # Image Inpainting
                     dst = cv2.inpaint(im, mask, 3, cv2.INPAINT_TELEA)
@@ -102,13 +101,13 @@ def main():
 
                 else:
                     for obj in objects:
-                        if labels and obj.label_id in labels:
-                            label_name = labels[obj.label_id]
+                        if labels and obj.id in labels:
+                            label_name = labels[obj.id]
                             caption = "{0}({1:.2f})".format(label_name, obj.score)
 
                             # Draw a rectangle and caption.
-                            box = obj.bounding_box.flatten().tolist()
-                            visual.draw_rectangle(im, box, colors[obj.label_id])
+                            box = (obj.bbox.xmin, obj.bbox.ymin, obj.bbox.xmax, obj.bbox.ymax)
+                            visual.draw_rectangle(im, box, colors[obj.id])
                             visual.draw_caption(im, box, caption)
                     dst = im
 

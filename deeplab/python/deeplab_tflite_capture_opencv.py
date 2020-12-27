@@ -52,9 +52,8 @@ def main():
     cv2.moveWindow(WINDOW_NAME, 100, 200)
 
     # Initialize TF-Lite interpreter.
-    interpreter = make_interpreter(args.model)
+    interpreter = make_interpreter(args.model, args.thread)
     interpreter.allocate_tensors()
-    interpreter.set_num_threads(args.thread)
     _, height, width, channel = interpreter.get_input_details()[0]["shape"]
     print("Interpreter: ", height, width, channel)
 
@@ -77,8 +76,7 @@ def main():
     fps = cap.get(cv2.CAP_PROP_FPS)
     print("Input: ", h, w, fps)
 
-    model_file, *device = args.model.split("@")
-    model_name = os.path.splitext(os.path.basename(model_file))[0]
+    model_name = os.path.splitext(os.path.basename(args.model))[0]
 
     # Output Video file
     # Define the codec and create VideoWriter object
