@@ -39,11 +39,11 @@ $ git submodule update --init
   - After a successful build, copy the *.lib files form **Release** and **_deps** directory.<br>
   ```
   tflite_build\Release\tensorflow-lite.lib
-  tflite_build\\_deps\farmhash-build\Release\farmhash.lib
-  tflite_build\\_deps\fft2d-build\Release\fft2d_fftsg.lib
-  tflite_build\\_deps\fft2d-build\Release\fft2d_fftsg2d.lib
-  tflite_build\\_deps\flatbuffers-build\Release\flatbuffers.lib
-  tflite_build\\_deps\ruy-build\Release\ruy.lib
+  tflite_build\_deps\farmhash-build\Release\farmhash.lib
+  tflite_build\_deps\fft2d-build\Release\fft2d_fftsg.lib
+  tflite_build\_deps\fft2d-build\Release\fft2d_fftsg2d.lib
+  tflite_build\_deps\flatbuffers-build\Release\flatbuffers.lib
+  tflite_build\_deps\ruy-build\Release\ruy.lib
   ```
 
 Note:  
@@ -54,7 +54,7 @@ fatal error C1083: include Cannot open include file: 'stdatomic.h':No such file 
 *2: Nothing is copied when *CMAKE_INSTALL_PREFIX* is set.
 
 ## Build libedgetpu
-- Download libusb-1.0.22 and extract the files to the vc_tflite folder.
+- Download [libusb-1.0.22](https://github.com/libusb/libusb/releases/tag/v1.0.22) and extract the files to the vc_tflite folder.
   ```
     vc_tflite
       +- libedgetpu
