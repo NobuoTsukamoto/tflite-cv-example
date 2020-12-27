@@ -10,10 +10,10 @@
     See the LICENSE file in the project root for more information.
 """
 
-import os
 import argparse
-import time
 import collections
+import os
+import time
 
 import cv2
 import numpy as np
@@ -21,7 +21,7 @@ import picamera
 from picamera.array import PiRGBArray
 from utils import visualization as visual
 from utils.tflite_util import (get_output_tensor, make_interpreter,
-                                       set_input_tensor)
+                               set_input_tensor)
 
 WINDOW_NAME = "TF-Lite image segmentation (PiCamera)"
 
