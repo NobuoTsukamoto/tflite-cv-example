@@ -73,12 +73,14 @@ def main():
 
                 # Create inpute tensor
                 # camera resolution (640, 480) => input tensor size (513, 513)
-                resized_im = cv2.cv2.resize(image, (width, height))
-                common.set_input(interpreter, resized_im)
-
+                _, scale = common.set_resized_input(
+                    interpreter, (resolution_width, rezolution_height), lambda size: cv2.resize(image, size)
+                )
                 # Run inference.
                 interpreter.invoke()
 
+                elapsed_ms = (time.perf_counter() - start) * 1000
+                
                 # Create segmentation map
                 result = segment.get_output(interpreter)
                 seg_map = result[:height, :width]
@@ -89,15 +91,10 @@ def main():
                 out_image = image // 2 + seg_image // 2
                 im = cv2.cvtColor(out_image, cv2.COLOR_RGB2BGR)  # display image
 
-                elapsed_ms = time.time() - start_ms
-
                 # Calc fps.
-                fps = 1 / elapsed_ms
-                fps_text = "{0:.2f}ms, {1:.2f}fps".format((elapsed_ms * 1000.0), fps)
+                fps = 1000. / elapsed_ms
+                fps_text = "{0:.2f}ms, {1:.2f}fps".format(elapsed_ms, fps)
                 visual.draw_caption(im, (10, 30), fps_text)
-
-                latency_text = "Runinference latency: {0:.2f}ms".format(latency)
-                visual.draw_caption(im, (10, 60), latency_text)
 
                 # Display image
                 cv2.imshow(WINDOW_NAME, im)
