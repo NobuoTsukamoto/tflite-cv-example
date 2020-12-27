@@ -85,19 +85,19 @@ def main():
                 elapsed_ms = (time.perf_counter() - start) * 1000
 
                 # Display result.
-		        objects = detect.get_objects(interpreter, args.threshold, scale)
-		        if objects:
-		            for obj in objects:
-		                label_name = "Unknown"
-		                if labels:
-		                    labels.get(obj.id, "Unknown")
-		                    label_name = labels[obj.id]
-		                caption = "{0}({1:.2f})".format(label_name, obj.score)
-		
-		                # Draw a rectangle and caption.
-		                box = (obj.bbox.xmin, obj.bbox.ymin, obj.bbox.xmax, obj.bbox.ymax)
-		                visual.draw_rectangle(im, box, colors[obj.id])
-		                visual.draw_caption(im, box, caption)
+                objects = detect.get_objects(interpreter, args.threshold, scale)
+                if objects:
+                    for obj in objects:
+                        label_name = "Unknown"
+                        if labels:
+                            labels.get(obj.id, "Unknown")
+                            label_name = labels[obj.id]
+                        caption = "{0}({1:.2f})".format(label_name, obj.score)
+
+                        # Draw a rectangle and caption.
+                        box = (obj.bbox.xmin, obj.bbox.ymin, obj.bbox.xmax, obj.bbox.ymax)
+                        visual.draw_rectangle(im, box, colors[obj.id])
+                        visual.draw_caption(im, box, caption)
 
                 # Calc fps.
                 elapsed_list.append(elapsed_ms)
