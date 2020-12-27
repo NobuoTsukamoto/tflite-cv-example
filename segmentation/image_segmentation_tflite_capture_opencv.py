@@ -15,61 +15,15 @@ import argparse
 import time
 import collections
 
+import cv2
 import numpy as np
-
-import tflite_runtime.interpreter as tflite
-import platform
 import picamera
 from picamera.array import PiRGBArray
-import cv2
-
 from utils import visualization as visual
+from utils.tflite_util import (get_output_tensor, make_interpreter,
+                                       set_input_tensor)
 
 WINDOW_NAME = "TF-Lite image segmentation (PiCamera)"
-
-EDGETPU_SHARED_LIB = {
-    "Linux": "libedgetpu.so.1",
-    "Darwin": "libedgetpu.1.dylib",
-    "Windows": "edgetpu.dll",
-}[platform.system()]
-
-
-def make_interpreter(model_file):
-    model_name = os.path.splitext(os.path.basename(model_file))[0]
-    model_file, *device = model_file.split("@")
-
-    print(model_name)
-    if "edgetpu" in model_name:
-        print("Edge TPU delegate")
-        return tflite.Interpreter(
-            model_path=model_file,
-            experimental_delegates=[
-                tflite.load_delegate(
-                    EDGETPU_SHARED_LIB, {"device": device[0]} if device else {}
-                )
-            ],
-        )
-    else:
-        return tflite.Interpreter(model_path=model_file)
-
-
-def set_input_tensor(interpreter, image):
-    """ Sets the input tensor.
-
-        Args:
-            interpreter: Interpreter object.
-            image: a function that takes a (width, height) tuple, and returns an RGB image resized to those dimensions.
-    """
-    tensor_index = interpreter.get_input_details()[0]["index"]
-    input_tensor = interpreter.tensor(tensor_index)()[0]
-    input_tensor[:, :] = image.copy()
-
-
-def get_output_tensor(interpreter, index):
-    """Returns the output tensor at the given index."""
-    output_details = interpreter.get_output_details()[index]
-    tensor = np.squeeze(interpreter.get_tensor(output_details["index"]))
-    return tensor
 
 
 def create_mask(pred_mask):
@@ -96,14 +50,12 @@ def main():
     cv2.moveWindow(WINDOW_NAME, 100, 200)
 
     # Initialize TF-Lite interpreter.
-    interpreter = make_interpreter(args.model)
+    interpreter = make_interpreter(args.model, args.thread)
     interpreter.allocate_tensors()
-    interpreter.set_num_threads(args.thread)
     _, height, width, channel = interpreter.get_input_details()[0]["shape"]
     print("Interpreter: ", height, width, channel)
 
-    model_file, *device = args.model.split("@")
-    model_name = os.path.splitext(os.path.basename(model_file))[0]
+    model_name = os.path.splitext(os.path.basename(args.model))[0]
 
     elapsed_list = []
 
