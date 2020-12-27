@@ -17,13 +17,13 @@ $ cd detection/cpp/
 
 ### Build TensorFlow-Lite library.
 ```
-$ ./tensorflow/lite/tools/make/download_dependencies.sh
+$ ./tensorflow/tensorflow/lite/tools/make/download_dependencies.sh
 
 # For arm7vl (Raspberry Pi)
-$ ./tensorflow/lite/tools/make/build_rpi_lib.sh
+$ ./tensorflow/tensorflow/lite/tools/make/build_rpi_lib.sh
 
 # For aarch64 (Jetson Nano)
-$ ./tensorflow/lite/tools/make/build_aarch64_lib.sh
+$ ./tensorflow/tensorflow/lite/tools/make/build_aarch64_lib.sh
 ```
 
 
