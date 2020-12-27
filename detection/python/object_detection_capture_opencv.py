@@ -15,11 +15,9 @@ import time
 
 import cv2
 import numpy as np
-
 from pycoral.adapters import common, detect
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
-
 from utils import visualization as visual
 
 WINDOW_NAME = "Edge TPU PyCoral object detection (OpenCV)"

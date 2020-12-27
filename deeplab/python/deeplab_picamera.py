@@ -18,7 +18,6 @@ import cv2
 import numpy as np
 import picamera
 from picamera.array import PiRGBArray
-from PIL import Image
 from pycoral.adapters import common, segment
 from pycoral.utils.edgetpu import make_interpreter
 from utils import label_util
@@ -74,13 +73,15 @@ def main():
                 # Create inpute tensor
                 # camera resolution (640, 480) => input tensor size (513, 513)
                 _, scale = common.set_resized_input(
-                    interpreter, (resolution_width, rezolution_height), lambda size: cv2.resize(image, size)
+                    interpreter,
+                    (resolution_width, rezolution_height),
+                    lambda size: cv2.resize(image, size),
                 )
                 # Run inference.
                 interpreter.invoke()
 
                 elapsed_ms = (time.perf_counter() - start) * 1000
-                
+
                 # Create segmentation map
                 result = segment.get_output(interpreter)
                 seg_map = result[:height, :width]
@@ -92,7 +93,7 @@ def main():
                 im = cv2.cvtColor(out_image, cv2.COLOR_RGB2BGR)  # display image
 
                 # Calc fps.
-                fps = 1000. / elapsed_ms
+                fps = 1000.0 / elapsed_ms
                 fps_text = "{0:.2f}ms, {1:.2f}fps".format(elapsed_ms, fps)
                 visual.draw_caption(im, (10, 30), fps_text)
 

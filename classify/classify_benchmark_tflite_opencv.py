@@ -10,21 +10,18 @@
     See the LICENSE file in the project root for more information.
 """
 
-import os
 import argparse
-import time
 import collections
 import operator
-
-import numpy as np
-
-import tflite_runtime.interpreter as tflite
+import os
 import platform
+import time
 
 import cv2
-
-from utils.tflite_util import make_interpreter, set_input_tensor, get_output_tensor
-
+import numpy as np
+import tflite_runtime.interpreter as tflite
+from utils.tflite_util import (get_output_tensor, make_interpreter,
+                               set_input_tensor)
 
 Class = collections.namedtuple("Class", ["id", "score"])
 

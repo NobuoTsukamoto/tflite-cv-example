@@ -13,17 +13,13 @@ import argparse
 import io
 import time
 
+import cv2
 import numpy as np
 import picamera
 from picamera.array import PiRGBArray
-
 from pycoral.adapters import classify, common
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
-
-import cv2
-import PIL
-
 from utils import visualization as visual
 
 WINDOW_NAME = "Edge TPU Image classification"

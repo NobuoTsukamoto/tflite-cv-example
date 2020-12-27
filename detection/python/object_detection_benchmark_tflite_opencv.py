@@ -15,8 +15,8 @@ import time
 
 import cv2
 import numpy as np
-
-from utils.tflite_util import make_interpreter, set_input_tensor, get_output_tensor
+from utils.tflite_util import (get_output_tensor, make_interpreter,
+                               set_input_tensor)
 
 
 def get_output(interpreter, score_threshold):

@@ -18,8 +18,8 @@ from itertools import cycle
 
 import cv2
 import numpy as np
-
-from utils.tflite_util import get_output_tensor, make_interpreter, set_input_tensor
+from utils.tflite_util import (get_output_tensor, make_interpreter,
+                               set_input_tensor)
 
 WINDOW_NAME = "TF-lite ESRGAN (OpenCV)"
 
@@ -28,9 +28,7 @@ WHITE = (240, 250, 250)
 MODE = cycle(["normal", "esrgan", "resize"])
 
 
-def drawTargetScope(
-    frame, xmin, ymin, xmax, ymax, is_draw_text=True
-):
+def drawTargetScope(frame, xmin, ymin, xmax, ymax, is_draw_text=True):
     # Display Target Scorp
     points1 = np.array([(xmin, ymin + 15), (xmin, ymin), (xmin + 15, ymin)])
     cv2.polylines(frame, [points1], False, WHITE, thickness=2)

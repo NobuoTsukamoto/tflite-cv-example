@@ -19,8 +19,8 @@ import cv2
 import numpy as np
 from utils import visualization as visual
 from utils.label_util import read_label_file
-from utils.tflite_util import make_interpreter, set_input_tensor, get_output_tensor
-
+from utils.tflite_util import (get_output_tensor, make_interpreter,
+                               set_input_tensor)
 
 WINDOW_NAME = "TF-lite object detection (OpenCV)"
 

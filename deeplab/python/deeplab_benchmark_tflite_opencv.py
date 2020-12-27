@@ -12,7 +12,6 @@
 import argparse
 import io
 import os
-import platform
 import time
 
 import cv2

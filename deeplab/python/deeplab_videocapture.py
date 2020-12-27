@@ -65,7 +65,7 @@ def main():
 
     cap_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     cap_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    
+
     while cap.isOpened():
         _, frame = cap.read()
 
@@ -75,7 +75,9 @@ def main():
         # camera resolution  => input tensor size (513, 513)
         input_buf = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         _, scale = common.set_resized_input(
-            interpreter, (cap_width, cap_height), lambda size: cv2.resize(input_buf, size)
+            interpreter,
+            (cap_width, cap_height),
+            lambda size: cv2.resize(input_buf, size),
         )
 
         # Run inference
@@ -94,7 +96,7 @@ def main():
         im = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
 
         # Calc fps.
-        fps = 1000. / elapsed_ms
+        fps = 1000.0 / elapsed_ms
         fps_text = "{0:.2f}ms, {1:.2f}fps".format(elapsed_ms, fps)
         visual.draw_caption(im, (10, 30), fps_text)
 

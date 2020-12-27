@@ -25,6 +25,7 @@ from utils import visualization as visual
 
 WINDOW_NAME = "Inpaint Pi Camera"
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
@@ -78,7 +79,9 @@ def main():
                 start = time.perf_counter()
 
                 _, scale = common.set_resized_input(
-                    interpreter, (resolution_width, rezolution_height), lambda size: cv2.resize(image, size)
+                    interpreter,
+                    (resolution_width, rezolution_height),
+                    lambda size: cv2.resize(image, size),
                 )
                 interpreter.invoke()
 
@@ -90,7 +93,12 @@ def main():
                     for obj in objects:
                         if labels and obj.id in labels:
                             # Draw a mask rectangle.
-                            box = (obj.bbox.xmin, obj.bbox.ymin, obj.bbox.xmax, obj.bbox.ymax)
+                            box = (
+                                obj.bbox.xmin,
+                                obj.bbox.ymin,
+                                obj.bbox.xmax,
+                                obj.bbox.ymax,
+                            )
                             visual.draw_rectangle(
                                 mask, box, (255, 255, 255), thickness=-1
                             )
@@ -106,7 +114,12 @@ def main():
                             caption = "{0}({1:.2f})".format(label_name, obj.score)
 
                             # Draw a rectangle and caption.
-                            box = (obj.bbox.xmin, obj.bbox.ymin, obj.bbox.xmax, obj.bbox.ymax)
+                            box = (
+                                obj.bbox.xmin,
+                                obj.bbox.ymin,
+                                obj.bbox.xmax,
+                                obj.bbox.ymax,
+                            )
                             visual.draw_rectangle(im, box, colors[obj.id])
                             visual.draw_caption(im, box, caption)
                     dst = im

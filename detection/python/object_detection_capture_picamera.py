@@ -16,9 +16,7 @@ import time
 import cv2
 import numpy as np
 import picamera
-import PIL
 from picamera.array import PiRGBArray
-
 from pycoral.adapters import common, detect
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
@@ -78,7 +76,9 @@ def main():
                 start = time.perf_counter()
 
                 _, scale = common.set_resized_input(
-                    interpreter, (resolution_width, rezolution_height), lambda size: cv2.resize(image, size)
+                    interpreter,
+                    (resolution_width, rezolution_height),
+                    lambda size: cv2.resize(image, size),
                 )
                 interpreter.invoke()
 
@@ -95,7 +95,12 @@ def main():
                         caption = "{0}({1:.2f})".format(label_name, obj.score)
 
                         # Draw a rectangle and caption.
-                        box = (obj.bbox.xmin, obj.bbox.ymin, obj.bbox.xmax, obj.bbox.ymax)
+                        box = (
+                            obj.bbox.xmin,
+                            obj.bbox.ymin,
+                            obj.bbox.xmax,
+                            obj.bbox.ymax,
+                        )
                         visual.draw_rectangle(im, box, colors[obj.id])
                         visual.draw_caption(im, box, caption)
 
