@@ -1,6 +1,3 @@
-[submodule "deeplab/cpp/edgetpu"]
-	path = deeplab/cpp/edgetpu
-	url = https://github.com/google-coral/edgetpu.git
 [submodule "detection/vc_tflite/tensorflow"]
 	path = detection/vc_tflite/tensorflow
 	url = https://github.com/tensorflow/tensorflow.git
