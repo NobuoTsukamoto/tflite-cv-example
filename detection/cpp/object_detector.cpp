@@ -100,7 +100,6 @@ bool ObjectDetector::BuildEdgeTpuInterpreterInternal(
         std::cerr << "Fail create edge tpu context." << std::endl;
         return false;
     }
-    model_ = tflite::FlatBufferModel::BuildFromFile(model_path.c_str());
 
     // Build interpreter
     resolver_ = new tflite::ops::builtin::BuiltinOpResolver();
