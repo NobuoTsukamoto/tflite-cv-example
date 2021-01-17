@@ -11,8 +11,6 @@ $ sudo apt install libopencv-dev cmake libboost-dev
 $ git clone https://github.com/NobuoTsukamoto/edge_tpu.git
 $ cd edge_tpu
 $ git submodule init && git submodule update
-$ cd detection/cpp/
-
 ```
 
 ### Build TensorFlow-Lite library.
@@ -22,14 +20,15 @@ $ ./tensorflow/tensorflow/lite/tools/make/download_dependencies.sh
 # For arm7vl (Raspberry Pi)
 $ ./tensorflow/tensorflow/lite/tools/make/build_rpi_lib.sh
 
-# For aarch64 (Jetson Nano)
+# For aarch64 (Jetson Nano or Raspberry Pi OS 64bit
+)
 $ ./tensorflow/tensorflow/lite/tools/make/build_aarch64_lib.sh
 ```
 
 
 ### Build module.
 ```
-# Path to edge_tpu/detection/cpp
+$ cd detection/cpp/
 $ mkdir build && cd build
 $ cmake ..
 $ make
