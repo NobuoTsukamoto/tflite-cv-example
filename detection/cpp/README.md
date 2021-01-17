@@ -11,8 +11,6 @@ $ sudo apt install libopencv-dev cmake libboost-dev
 $ git clone https://github.com/NobuoTsukamoto/edge_tpu.git
 $ cd edge_tpu
 $ git submodule init && git submodule update
-$ cd detection/cpp/
-
 ```
 
 ### Build TensorFlow-Lite library.
