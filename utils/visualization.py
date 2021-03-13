@@ -56,3 +56,24 @@ def draw_caption(image, box, caption):
     cv2.putText(
         image, caption, (b[0], b[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 1
     )
+
+
+def draw_circle(image, point):
+    """ Draws a caption above the box in an image.
+
+    Args:
+        image: The image to draw on.
+        point: A list of 4 elements (x, y).
+    """
+    cv2.circle(image, point, 7, (246, 250, 250), -1)
+    cv2.circle(image, point, 2, (255, 209, 0), 2)
+
+
+def draw_line(image, point1, point2):
+    """ Draws a caption above the box in an image.
+
+    Args:
+        image: The image to draw on.
+        point: A list of 4 elements (x, y).
+    """
+    cv2.line(image, point1, point2, (255, 209, 0), 5)
