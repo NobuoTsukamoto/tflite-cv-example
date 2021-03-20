@@ -21,7 +21,7 @@ from utils import visualization as visual
 from utils.label_util import read_label_file
 from utils.tflite_util import get_output_tensor, make_interpreter, set_input_tensor
 
-WINDOW_NAME = "TF-lite object detection (OpenCV)"
+WINDOW_NAME = "CenterNet on-device with TensorFlow Lite (OpenCV)"
 
 KEYPOINT_EDGES = [
     (0, 1),
@@ -160,7 +160,6 @@ def main():
         set_input_tensor(interpreter, resize_im)
         interpreter.invoke()
         objs = get_output(interpreter, args.threshold, args.keypoint)
-
 
         # Display result.
         for obj in objs:
