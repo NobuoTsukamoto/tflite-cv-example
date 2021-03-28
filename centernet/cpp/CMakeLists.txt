@@ -54,13 +54,7 @@ EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE
 message(STATUS "Architecture: ${ARCHITECTURE}")
 
 # Link your application with Tensorflow Lite
-if(${ARCHITECTURE} STREQUAL "x86_64")
-    target_link_libraries(centernet_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../../tensorflow/bazel-bin/tensorflow/lite/libtensorflowlite.so)
-elseif(${ARCHITECTURE} STREQUAL "armv7l" )
-    target_link_libraries(centernet_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../../tensorflow/tensorflow/lite/tools/make/gen/rpi_armv7l/lib/libtensorflow-lite.a)
-else()
-    target_link_libraries(centernet_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../../tensorflow/tensorflow/lite/tools/make/gen/linux_aarch64/lib/libtensorflow-lite.a)
-endif()
+target_link_libraries(centernet_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../../tensorflow/bazel-bin/tensorflow/lite/libtensorflowlite.so)
 
 
 # target_link_libraries(centernet_detection Threads::Threads)
