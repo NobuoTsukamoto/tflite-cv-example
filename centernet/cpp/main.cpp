@@ -19,19 +19,19 @@
 const cv::String kKeys =
     "{help h usage ? |    | show help command.}"
     "{@input         |    | path to centernet keypoint tf-lite model file.}"
-    "{n thread       |2   | num of thread to set tf-lite interpreter.}"
+    "{n thread       |2   | number of threads specified in XNNPackDelegateOptions.}"
     "{s score        |0.5 | score threshold.}"
     "{l label        |    | path to label file.}"
     "{W width        |640 | camera resolution width.}"
     "{H height       |480 | camera resolution height.}"
-    "{v videopath    |    | file path of videofile.}"
-    ;
+    "{o output       |    | file path of output videofile.}"
+    "{v videopath    |    | file path of videofile.}";
 
 const cv::String kWindowName = "CenterNet on-device with TensorFlow Lite.";
 const cv::Scalar kWhiteColor = cv::Scalar(246, 250, 250);
 const cv::Scalar kBuleColor = cv::Scalar(255, 209, 0);
 
-std::unique_ptr<std::map<long, std::string>> ReadLabelFile(const std::string& label_path)
+std::unique_ptr<std::map<long, std::string>> ReadLabelFile(const std::string &label_path)
 {
     auto labels = std::make_unique<std::map<long, std::string>>();
 
@@ -49,7 +49,7 @@ std::unique_ptr<std::map<long, std::string>> ReadLabelFile(const std::string& la
                 std::cout << "Expect 2-D input label (" << result.size() << ")." << std::endl;
                 continue;
             }
-             
+
             auto label_string = result[2];
             for (size_t i = 3; i < result.size(); i++)
             {
@@ -68,23 +68,24 @@ std::unique_ptr<std::map<long, std::string>> ReadLabelFile(const std::string& la
 }
 
 void DrawCaption(
-    cv::Mat& im,
-    const cv::Point& point,
-    const std::string& caption)
+    cv::Mat &im,
+    const cv::Point &point,
+    const std::string &caption)
 {
     cv::putText(im, caption, point, cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 0), 2);
     cv::putText(im, caption, point, cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(255, 255, 255), 1);
 }
 
 void DrawCircle(
-    cv::Mat& im,
-    const cv::Point& point)
+    cv::Mat &im,
+    const cv::Point &point)
 {
     cv::circle(im, point, 7, kWhiteColor, -1);
     cv::circle(im, point, 2, kBuleColor, 2);
 }
 
-int main(int argc, char* argv[]) try
+int main(int argc, char *argv[])
+try
 {
     // Argument parsing
     cv::String model_path;
@@ -100,6 +101,7 @@ int main(int argc, char* argv[]) try
     auto camera_width = parser.get<int>("width");
     auto camera_height = parser.get<int>("height");
     auto video_path = parser.get<cv::String>("videopath");
+    auto output_path = parser.get<cv::String>("output");
     if (parser.has("@input"))
     {
         model_path = parser.get<cv::String>("@input");
@@ -110,7 +112,8 @@ int main(int argc, char* argv[]) try
         return 0;
     }
 
-    if (!parser.check()) {
+    if (!parser.check())
+    {
         parser.printErrors();
         return 1;
     }
@@ -122,9 +125,10 @@ int main(int argc, char* argv[]) try
     std::cout << "width           : " << camera_width << std::endl;
     std::cout << "height          : " << camera_height << std::endl;
     std::cout << "video path      : " << video_path << std::endl;
+    std::cout << "output path     : " << output_path << std::endl;
 
     // Create keypoint edges
-    typedef std::tuple<int, int> edge;
+    typedef std::tuple<size_t, size_t> edge;
     std::vector<edge> keypoint_edges{
         std::make_tuple(0, 1),
         std::make_tuple(0, 2),
@@ -143,8 +147,7 @@ int main(int argc, char* argv[]) try
         std::make_tuple(11, 13),
         std::make_tuple(13, 15),
         std::make_tuple(12, 14),
-        std::make_tuple(14, 16)
-        };
+        std::make_tuple(14, 16)};
 
     // Create CenterNet detector
     auto detector = std::make_unique<CenterNetDetector>(score_threshold);
@@ -161,7 +164,7 @@ int main(int argc, char* argv[]) try
 
     // Window setting
     cv::namedWindow(kWindowName,
-        cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE | cv::WINDOW_KEEPRATIO);
+                    cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE | cv::WINDOW_KEEPRATIO);
     cv::moveWindow(kWindowName, 100, 100);
 
     // Videocapture setting.
@@ -178,19 +181,33 @@ int main(int argc, char* argv[]) try
     }
     auto cap_width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
     auto cap_height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+    auto cap_fps = cap.get(cv::CAP_PROP_FPS);
 
-    std::cout << "Start capture." << " isOpened: " << std::boolalpha << cap.isOpened() << std::endl;
-    std::cout << "VideoCapture Width: " << cap_width << ", Height: " << cap_height << std::endl;
+    std::cout << "Start capture."
+              << " isOpened: " << std::boolalpha << cap.isOpened() << std::endl;
+    std::cout << "VideoCapture Width: " << cap_width << ", Height: " << cap_height << ", FPS: " << cap_fps << std::endl;
+
+    // Videowriter setting.
+    cv::VideoWriter writer;
+    if (!output_path.empty())
+    {
+        auto fourcc = cv::VideoWriter::fourcc('M', 'P', '4', 'V');
+        writer.open(output_path, fourcc, cap_fps, cv::Size(cap_width, cap_height), true);
+    }
 
     std::list<double> inference_times;
 
-    while(cap.isOpened())
+    while (cap.isOpened())
     {
-        const auto& start_time = std::chrono::steady_clock::now();
-    
+        const auto &start_time = std::chrono::steady_clock::now();
+
         cv::Mat frame, resized_im, input_im;
 
         cap >> frame;
+        if (frame.empty())
+        {
+            break;
+        }
 
         // Create input data.
         // camera resolution  => resize => bgr2rgb => input_im
@@ -202,8 +219,8 @@ int main(int argc, char* argv[]) try
         // Run inference.
         std::chrono::duration<double, std::milli> inference_time_span;
 
-        const auto& result = detector->RunInference(input_im.data, input_im.total() * input_im.elemSize(), inference_time_span);
-        for (const auto& object : *result)
+        const auto &result = detector->RunInference(input_im.data, input_im.total() * input_im.elemSize(), inference_time_span);
+        for (const auto &object : *result)
         {
             auto x = int(object.x * cap_width);
             auto y = int(object.y * cap_height);
@@ -227,9 +244,9 @@ int main(int argc, char* argv[]) try
             }
             caption << "(" << std::fixed << std::setprecision(2) << object.scores << ")";
             DrawCaption(frame, cv::Point(x, y), caption.str());
-            
+
             // Draw keypoint
-            for (const auto & keypoint : object.keypoints)
+            for (const auto &keypoint : object.keypoints)
             {
                 if (keypoint.scores >= score_threshold)
                 {
@@ -239,12 +256,12 @@ int main(int argc, char* argv[]) try
                 }
             }
 
-            for (const auto & keypoint_edge : keypoint_edges)
+            for (const auto &keypoint_edge : keypoint_edges)
             {
                 auto start_point = std::get<0>(keypoint_edge);
                 auto end_point = std::get<1>(keypoint_edge);
                 auto keypoint_length = object.keypoints.size();
-                
+
                 if (start_point < 0 || start_point >= keypoint_length ||
                     end_point < 0 || end_point >= keypoint_length)
                 {
@@ -283,24 +300,29 @@ int main(int argc, char* argv[]) try
         time_caption << ", " << 1000.0 / time_span.count() << "FPS";
         DrawCaption(frame, cv::Point(10, 60), time_caption.str());
 
+        // Output file.
+        if (writer.isOpened())
+        {
+            writer.write(frame);
+        }
+
         cv::imshow(kWindowName, frame);
         // Handle the keyboard before moving to the next frame
         const int key = cv::waitKey(1);
         if (key == 27 || key == 'q')
         {
-            break;  // Escape
+            break; // Escape
         }
-
     }
+    writer.release();
     return EXIT_SUCCESS;
-
 }
-catch (const cv::Exception& e)
+catch (const cv::Exception &e)
 {
     std::cerr << "OpenCV error calling :\n    " << e.what() << std::endl;
     return EXIT_FAILURE;
 }
-catch (const std::exception& e)
+catch (const std::exception &e)
 {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
