@@ -21,6 +21,7 @@ TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux)
 ![camouflage](camouflage/g3doc/img/output.gif)
 ![deeplab](deeplab/g3doc/img/output.gif)
 ![segmentation](segmentation/g3doc/segmentation.gif)
+![centernet](centernet/g3doc/img/centernet.gif)
 
 ## Environment
 - Coral Edge TPU USB Accelerator

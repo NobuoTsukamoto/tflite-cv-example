@@ -2,6 +2,7 @@
 
 ![detection](g3doc/img/centernet.gif)
 
+Original video: https://www.pexels.com/video/people-on-a-sidewalk-waiting-for-signal-light-to-cross-the-street-3002466/
 ## List of samples
 
 | Name | Language | Description | Backend | OS |
