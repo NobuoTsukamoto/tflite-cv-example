@@ -10,6 +10,6 @@ $ python3 centernet_tflite_capture_opencv.py \
 ### Keypoint detection
 ```
 $ python3 centernet_tflite_capture_opencv.py \
-    --model ../models/centernet_mobilenetv2_fpn_kpts.tflite
+    --model ../models/centernet_mobilenetv2_fpn_kpts.tflite \
     --label ../models/coco_labels.txt --keypoint
 ```
