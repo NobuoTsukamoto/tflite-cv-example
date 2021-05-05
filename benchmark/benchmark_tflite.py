@@ -59,10 +59,11 @@ def main():
         set_input_tensor(interpreter, input_im)
         interpreter.invoke()
 
-        inference_time = (time.perf_counter() - start) * 1000
+        inference_time = time.perf_counter() - start
+        elapsed_list.append(inference_time)
 
         if i == 0:
-            print("First Inference : {0:.2f} ms".format(inference_time))
+            print("First Inference : {0:.2f} ms".format(inference_time * 1000))
 
         if (i + 1) % args.display_every == 0:
             print(
@@ -72,9 +73,9 @@ def main():
 
     results = {}
     iter_times = np.array(elapsed_list)
-    iter_times = iter_times[args.num_warmup_iterations :]
     results["total_time"] = np.sum(iter_times)
-    results["images_per_sec"] = np.mean(iter_times)
+    iter_times = iter_times[args.num_warmup_iterations :]
+    results["images_per_sec"] = np.mean(batch / iter_times)
     results["99th_percentile"] = (
         np.percentile(iter_times, q=99, interpolation="lower") * 1000
     )
