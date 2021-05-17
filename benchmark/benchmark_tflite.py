@@ -10,6 +10,7 @@
     See the LICENSE file in the project root for more information.
 """
 
+import os
 import argparse
 import time
 
@@ -41,6 +42,10 @@ def main():
         help="If set, script will run for specified number of seconds.",
     )
     args = parser.parse_args()
+
+    print("Model name: {0}, param num_threads: {1}".format(
+        os.path.splitext(os.path.basename(args.model))[0],
+        args.thread))
 
     # Initialize TF-Lite interpreter.
     interpreter = make_interpreter(args.model, args.thread)
