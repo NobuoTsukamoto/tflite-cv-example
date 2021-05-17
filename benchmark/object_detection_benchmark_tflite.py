@@ -69,7 +69,7 @@ def main():
         "--minival_ids", type=str, help="Path that minival ids list file.", default=None
     )
     parser.add_argument(
-        "--exec_coco_metrics", type=str, help="Execute coco metrics.", default=None
+        "--exec_coco_metrics", help="Execute coco metrics.", action='store_true'
     )
     args = parser.parse_args()
 
@@ -143,7 +143,7 @@ def main():
     with open(coco_detections_path, "w") as f:
         json.dump(coco_detections, f)
 
-    cocoDt = coco.loadRes(args.coco_detections_path)
+    cocoDt = coco.loadRes(coco_detections_path)
 
     if args.exec_coco_metrics is not None:
         # compute coco metrics
