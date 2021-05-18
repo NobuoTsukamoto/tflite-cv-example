@@ -52,7 +52,6 @@ def main():
         default=None,
         required=False,
     )
-    args = parser.parse_args()
     parser.add_argument(
         "--display_every",
         type=int,
