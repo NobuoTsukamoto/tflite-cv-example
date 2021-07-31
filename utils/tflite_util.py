@@ -10,6 +10,9 @@
     See the LICENSE file in the project root for more information.
 """
 
+import os
+
+from ctypes import *
 import numpy as np
 import tflite_runtime.interpreter as tflite
 import platform
@@ -21,12 +24,13 @@ EDGETPU_SHARED_LIB = {
 }[platform.system()]
 
 
-def make_interpreter(model_file, num_of_threads):
+def make_interpreter(model_file, num_of_threads, delegate_library=None):
     """ make tf-lite interpreter.
 
     Args:
         model_file: Model file path.
         num_of_threads: Num of threads.
+        delegate_library: Delegate file path.
 
     Return:
         tf-lite interpreter.
@@ -38,6 +42,20 @@ def make_interpreter(model_file, num_of_threads):
             model_path=model_file,
             experimental_delegates=[
                 tflite.load_delegate(EDGETPU_SHARED_LIB)
+            ],
+        )
+    elif delegate_library is not None:
+
+        print("{} delegate".format(os.path.splitext(os.path.basename(delegate_library))[0]))
+        option = {"backends": "CpuAcc",
+                  "logging-severity": "info",
+                  "number-of-threads": str(num_of_threads),
+                  "enable-fast-math":"true"}
+        print(option)
+        return tflite.Interpreter(
+            model_path=model_file,
+            experimental_delegates=[
+                tflite.load_delegate(delegate_library, options=option)
             ],
         )
     else:
