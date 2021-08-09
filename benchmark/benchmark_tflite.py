@@ -10,6 +10,7 @@
     See the LICENSE file in the project root for more information.
 """
 
+import os
 import argparse
 import time
 
@@ -40,10 +41,21 @@ def main():
         default=None,
         help="If set, script will run for specified number of seconds.",
     )
+    parser.add_argument(
+        "--delegate",
+        type=str,
+        default=None,
+    )
     args = parser.parse_args()
 
+    print("Model name: {0}, param num_threads: {1}, delegate: {2}".format(
+        # os.path.splitext(os.path.basename(args.model))[0],
+        args.model,
+        args.thread,
+        args.delegate))
+
     # Initialize TF-Lite interpreter.
-    interpreter = make_interpreter(args.model, args.thread)
+    interpreter = make_interpreter(args.model, args.thread, args.delegate)
     interpreter.allocate_tensors()
     batch, height, width, channel = interpreter.get_input_details()[0]["shape"]
     print("Interpreter: ", batch, height, width, channel)

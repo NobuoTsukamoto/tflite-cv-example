@@ -14,6 +14,7 @@ import os
 import argparse
 import time
 import json
+import csv
 
 import cv2
 from utils.tflite_util import get_output_tensor, make_interpreter, set_input_tensor
@@ -70,10 +71,12 @@ def main():
     parser.add_argument(
         "--exec_coco_metrics", help="Execute coco metrics.", action='store_true'
     )
+    parser.add_argument("--delegate", type=str, default=None)
+    # parser.add_argument("--normalize", action='store_true')
     args = parser.parse_args()
 
     # Initialize TF-Lite interpreter.
-    interpreter = make_interpreter(args.model, args.thread)
+    interpreter = make_interpreter(args.model, args.thread, args.delegate)
     interpreter.allocate_tensors()
     batch, height, width, channel = interpreter.get_input_details()[0]["shape"]
     print("Interpreter: ", batch, height, width, channel)
@@ -101,6 +104,8 @@ def main():
         im = cv2.imread(os.path.join(args.images_dir, coco_img["file_name"]))
         im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
         resize_im = cv2.resize(im, (width, height))
+        # if args.normalize:
+        #     resize_im = resize_im / 127.5 - 1.
 
         # Run inference.
         start = time.perf_counter()
@@ -111,6 +116,10 @@ def main():
         class_ids = get_output_tensor(interpreter, 1)
         scores = get_output_tensor(interpreter, 2)
         count = int(get_output_tensor(interpreter, 3))
+
+        # count = 25
+        # class_ids = get_output_tensor(interpreter, 2)
+        # scores = get_output_tensor(interpreter, 1)
 
         inference_time = time.perf_counter() - start
         elapsed_list.append(inference_time)
@@ -129,6 +138,7 @@ def main():
                 "bbox": [int(coord) for coord in bbox_coco_fmt],
                 "score": float(scores[j]),
             }
+            # print(coco_detection)
             coco_detections.append(coco_detection)
 
         if (i + 1) % args.display_every == 0:
@@ -155,6 +165,12 @@ def main():
 
         os.remove(coco_detections_path)
 
+        output = []
+        output.append(os.path.splitext(os.path.basename(args.model))[0])
+        output.extend(eval.stats)
+        with open("./output.csv", 'a') as f:
+            writer = csv.writer(f)
+            writer.writerow(output)
 
 if __name__ == "__main__":
     main()

@@ -64,6 +64,7 @@ def main():
     parser.add_argument("--thread", help="Num threads.", default=2, type=int)
     parser.add_argument("--videopath", help="File path of Videofile.", default="")
     parser.add_argument("--output", help="File path of result.", default="")
+    parser.add_argument("--delegate", help="File path of result.", default=None)
     args = parser.parse_args()
 
     # Initialize window.
@@ -73,7 +74,7 @@ def main():
     cv2.moveWindow(WINDOW_NAME, 100, 200)
 
     # Initialize TF-Lite interpreter.
-    interpreter = make_interpreter(args.model, args.thread)
+    interpreter = make_interpreter(args.model, args.thread, args.delegate)
     interpreter.allocate_tensors()
     _, height, width, channel = interpreter.get_input_details()[0]["shape"]
     print("Interpreter(height, width, channel): ", height, width, channel)
@@ -118,6 +119,7 @@ def main():
 
         im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         resize_im = cv2.resize(im, (width, height))
+        resize_im = resize_im / 127.5 -1.
 
         # Run inference.
         start = time.perf_counter()
