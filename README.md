@@ -14,14 +14,19 @@ TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux)
 | [Object detection](detection) | Python<br>C++<br>VC++ | Object detection by PiCamera or Video Capture. | TF-Lite<br>PyCoral | Linux<br>Windows |
 | [U-Net MobileNet v2](segmentation) | Python | Image segmentation model U-Net MobileNet v2. | TF-Lite | Linux<br>Windows 
 | [Super resolution](super_resolution) | Python | Super resolution using ESRGAN. | TF-Lite | Linux<br>Windows |
+| [YOLOX](yolox) | Python | YOLOX with TensorFlow Lite. | TF-Lite | Linux<br>Windows |
 
 
 ## Images
-![detection](detection/g3doc/img/output.gif)
-![camouflage](camouflage/g3doc/img/output.gif)
-![deeplab](deeplab/g3doc/img/output.gif)
-![segmentation](segmentation/g3doc/segmentation.gif)
-![centernet](centernet/g3doc/img/centernet.gif)
+
+|Object detection|Camouflage|DeepLab|
+|:--:|:--:|:--:|
+|![detection](detection/g3doc/img/output.gif)|![camouflage](camouflage/g3doc/img/output.gif)|![deeplab](deeplab/g3doc/img/output.gif)|
+
+
+|Segmentation|Camouflage|YOLOX|
+|:--:|:--:|:--:|
+|![segmentation](segmentation/g3doc/segmentation.gif)|![centernet](centernet/g3doc/img/centernet.gif)|![yolox](yolox/g3doc/yolox.gif)|
 
 ## Environment
 - Coral Edge TPU USB Accelerator
