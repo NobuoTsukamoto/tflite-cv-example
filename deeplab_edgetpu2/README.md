@@ -47,7 +47,7 @@ options:
 # YouTubu video Link
 
 ## Coral Dev Board EdgeTPU AutosegEdgeTPU-XS with fusing argmax
-[![](https://img.youtube.com/vi/2ywjDXRT6qo/0.jpg)](https://www.youtube.com/watch?v=eR-2ywjDXRT6qo)
+[![](https://img.youtube.com/vi/2ywjDXRT6qo/0.jpg)](https://www.youtube.com/watch?v=2ywjDXRT6qo)
 
 ## Coral Dev Board EdgeTPU AutosegEdgeTPU-S with fusing argmax
 
