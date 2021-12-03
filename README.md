@@ -15,6 +15,7 @@ TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux)
 | [U-Net MobileNet v2](segmentation) | Python | Image segmentation model U-Net MobileNet v2. | TF-Lite | Linux<br>Windows 
 | [Super resolution](super_resolution) | Python | Super resolution using ESRGAN. | TF-Lite | Linux<br>Windows |
 | [YOLOX](yolox/python) | Python | YOLOX with TensorFlow Lite. | TF-Lite | Linux<br>Windows |
+| [DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU](deeplab_edgetpu2) | Python | DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU with TensorFlow Lite. | TF-Lite<br>EdgeTPU | Linux<br>Windows |
 
 
 ## Images
@@ -24,13 +25,19 @@ TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux)
 |![detection](detection/g3doc/img/output.gif)|![camouflage](camouflage/g3doc/img/output.gif)|![deeplab](deeplab/g3doc/img/output.gif)|
 
 
-|Segmentation|CenterNet|YOLOX|
+|Segmentation|Camouflage|YOLOX|
 |:--:|:--:|:--:|
 |![segmentation](segmentation/g3doc/segmentation.gif)|![centernet](centernet/g3doc/img/centernet.gif)|![yolox](yolox/g3doc/yolox.gif)|
+
+
+|DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU|
+|:--:|
+|YouTube Link<br>[![](https://img.youtube.com/vi/-F9R51vFOS8/mqdefault.jpg)](https://www.youtube.com/watch?v=-F9R51vFOS8)|
 
 ## Environment
 - Coral Edge TPU USB Accelerator
 - Raspberry Pi (3 B+ / 4) + PiCamera or UVC Camera
+- Dev Board
 - x64 PC(Windows or Linux) + Video file or UVC Camera
 - Python3
 
