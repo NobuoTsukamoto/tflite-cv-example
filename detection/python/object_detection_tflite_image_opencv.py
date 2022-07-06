@@ -14,7 +14,6 @@ import argparse
 import random
 
 import cv2
-import numpy as np
 from utils import visualization as visual
 from utils.label_util import read_label_file
 from utils.tflite_util import get_output_tensor, make_interpreter, set_input_tensor
@@ -60,8 +59,6 @@ def main():
     parser.add_argument(
         "--threshold", help="threshold to filter results.", default=0.5, type=float
     )
-    parser.add_argument("--width", help="Resolution width.", default=640, type=int)
-    parser.add_argument("--height", help="Resolution height.", default=480, type=int)
     parser.add_argument("--thread", help="Num threads.", default=2, type=int)
     parser.add_argument("--delegate", help="File path of result.", default=None)
     args = parser.parse_args()
@@ -84,7 +81,7 @@ def main():
     print("Input(height, width): ", h, w)
 
     input_im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-    resize_im = cv2.resize(input_im, (args.width, args.height))
+    resize_im = cv2.resize(input_im, (width, height))
     # resize_im = resize_im / 127.5 -1.
 
     set_input_tensor(interpreter, resize_im)
@@ -94,7 +91,10 @@ def main():
     # Display result.
     for i, obj in enumerate(objs):
         class_id = int(obj["class_id"])
-        caption = "{0}({1:.2f})".format(labels[class_id], obj["score"])
+        if class_id in labels:
+            caption = "{0}({1:.2f})".format(labels[class_id], obj["score"])
+        else:
+            caption = "{0}({1:.2f})".format(class_id, obj["score"])
 
         # Convert the bounding box figures from relative coordinates
         # to absolute coordinates based on the original resolution
