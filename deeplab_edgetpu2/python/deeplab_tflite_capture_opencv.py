@@ -4,7 +4,7 @@
 """
     DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU Image segmenation with OpenCV.
 
-    Copyright (c) 2021 Nobuo Tsukamoto
+    Copyright (c) 2022 Nobuo Tsukamoto
 
     This software is released under the MIT License.
     See the LICENSE file in the project root for more information.
@@ -18,15 +18,14 @@ import numpy as np
 
 from utils import label_util
 from utils import visualization as visual
-from utils.tflite_util import (get_output_tensor, make_interpreter,
-                               set_input_tensor)
+from utils.tflite_util import get_output_tensor, make_interpreter, set_input_tensor
 
 WINDOW_NAME = "TF-Lite DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU (OpenCV)"
 
 
 def normalize(im):
     im = np.expand_dims(im, axis=0)
-    im = im.astype(np.float32) / 128 - 0.5
+    im = (im - 128).astype(np.int8)
     return im
 
 
@@ -40,8 +39,6 @@ def get_output(interpreter):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
-    parser.add_argument("--width", help="Resolution width.", default=640, type=int)
-    parser.add_argument("--height", help="Resolution height.", default=480, type=int)
     parser.add_argument("--thread", help="Num threads.", default=2, type=int)
     parser.add_argument("--videopath", help="File path of Videofile.", default="")
     parser.add_argument("--output", help="File path of result.", default="")

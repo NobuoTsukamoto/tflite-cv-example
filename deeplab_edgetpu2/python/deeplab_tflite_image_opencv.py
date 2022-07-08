@@ -4,13 +4,12 @@
 """
     DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU Image segmenation with OpenCV.
 
-    Copyright (c) 2020 Nobuo Tsukamoto
+    Copyright (c) 2022 Nobuo Tsukamoto
 
     This software is released under the MIT License.
     See the LICENSE file in the project root for more information.
 """
 import argparse
-import time
 
 import cv2
 import numpy as np
@@ -20,7 +19,7 @@ from utils.tflite_util import get_output_tensor, make_interpreter, set_input_ten
 
 def normalize(im):
     im = np.expand_dims(im, axis=0)
-    im = im.astype(np.float32) / 128 - 0.5
+    im = (im - 128).astype(np.int8)
     return im
 
 
@@ -34,12 +33,6 @@ def get_output(interpreter):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
-    parser.add_argument(
-        "--input_shape",
-        type=str,
-        default="512,512",
-        help="Specify an input shape for inference.",
-    )
     parser.add_argument("--thread", help="Num threads.", default=2, type=int)
     parser.add_argument("--input", help="File path of image.", default="")
     parser.add_argument("--output", help="File path of result.", default="")
@@ -56,9 +49,8 @@ def main():
 
     frame = cv2.imread(args.input)
     h, w, _ = frame.shape
-    input_shape = tuple(map(int, args.input_shape.split(",")))
     im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    resized_im = cv2.resize(im, input_shape)
+    resized_im = cv2.resize(im, (width, height))
     normalized_im = normalize(resized_im)
 
     # Run inference.
