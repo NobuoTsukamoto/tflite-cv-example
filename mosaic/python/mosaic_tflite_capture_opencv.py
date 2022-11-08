@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU Image segmenation with OpenCV.
+    MOSAIC Image segmenation with OpenCV.
 
     Copyright (c) 2022 Nobuo Tsukamoto
 
@@ -20,12 +20,44 @@ from utils import label_util
 from utils import visualization as visual
 from utils.tflite_util import get_output_tensor, make_interpreter, set_input_tensor
 
-WINDOW_NAME = "TF-Lite DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU (OpenCV)"
+WINDOW_NAME = "TF-Lite MOSAIC (OpenCV)"
+
+MEAN_RGB = [127.5, 127.5, 127.5]
+STDDEV_RGB = [127.5, 127.5, 127.5]
+
+COLORMAP = np.array(
+    (
+        (128, 64, 128),
+        (244, 35, 232),
+        (70, 70, 70),
+        (102, 102, 156),
+        (190, 153, 153),
+        (153, 153, 153),
+        (250, 170, 30),
+        (220, 220, 0),
+        (107, 142, 35),
+        (152, 251, 152),
+        (70, 130, 180),
+        (220, 20, 60),
+        (255, 0, 0),
+        (0, 0, 142),
+        (0, 0, 70),
+        (0, 60, 100),
+        (0, 80, 100),
+        (0, 0, 230),
+        (119, 11, 32),
+        (0, 0, 0),
+    ),
+    np.uint8
+)
 
 
-def normalize(im):
+def normalize(im, quantize=True):
+    if quantize:
+        im = im.astype(np.int8)
+    else:
+        im = (im - MEAN_RGB) / STDDEV_RGB
     im = np.expand_dims(im, axis=0)
-    im = (im - 128).astype(np.int8)
     return im
 
 
@@ -40,8 +72,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="File path of Tflite model.", required=True)
     parser.add_argument("--thread", help="Num threads.", default=2, type=int)
-    parser.add_argument("--width", help="Resolution width.", default=640, type=int)
-    parser.add_argument("--height", help="Resolution height.", default=480, type=int)
     parser.add_argument("--videopath", help="File path of Videofile.", default="")
     parser.add_argument("--output", help="File path of result.", default="")
     args = parser.parse_args()
@@ -50,16 +80,13 @@ def main():
     cv2.namedWindow(
         WINDOW_NAME, cv2.WINDOW_GUI_NORMAL | cv2.WINDOW_AUTOSIZE | cv2.WINDOW_KEEPRATIO
     )
-    cv2.moveWindow(WINDOW_NAME, 100, 200)
+    cv2.moveWindow(WINDOW_NAME, 10, 10)
 
     # Initialize TF-Lite interpreter.
     interpreter = make_interpreter(args.model, args.thread)
     interpreter.allocate_tensors()
     _, height, width, channel = interpreter.get_input_details()[0]["shape"]
     print("Interpreter: ", height, width, channel)
-
-    # Initialize colormap
-    colormap = label_util.create_pascal_label_colormap()
 
     # Video capture.
     if args.videopath == "":
@@ -77,6 +104,9 @@ def main():
     print("Input: ", h, w, fps)
 
     model_name = os.path.splitext(os.path.basename(args.model))[0]
+    is_quantize = False
+    if "quant" in model_name:
+        is_quantize = True
 
     # Output Video file
     # Define the codec and create VideoWriter object
@@ -107,8 +137,8 @@ def main():
         inference_time = (time.perf_counter() - start) * 1000
 
         # Display result
-        seg_map = np.reshape(seg_map, (width, height)).astype(np.uint8)
-        seg_image = label_util.label_to_color_image(colormap, seg_map)
+        #seg_map = np.reshape(seg_map, (height, width)).astype(np.uint8)
+        seg_image = label_util.label_to_color_image(COLORMAP, seg_map)
         seg_image = cv2.resize(seg_image, (w, h))
         im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) // 2 + seg_image // 2
         im = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
@@ -120,7 +150,6 @@ def main():
             elapsed_list.pop(0)
             avg_elapsed_ms = np.mean(elapsed_list)
             avg_text = " AGV: {0:.2f}ms".format(avg_elapsed_ms)
-
         # Display fps
         fps_text = "Inference: {0:.2f}ms".format(inference_time)
         display_text = model_name + " " + fps_text + avg_text
