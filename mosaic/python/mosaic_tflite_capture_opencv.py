@@ -48,7 +48,7 @@ COLORMAP = np.array(
         (119, 11, 32),
         (0, 0, 0),
     ),
-    np.uint8
+    np.uint8,
 )
 
 
@@ -125,7 +125,7 @@ def main():
 
         im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         resize_im = cv2.resize(im, (width, height))
-        input_data = normalize(resize_im)
+        input_data = normalize(resize_im, is_quantize)
 
         # Run inference.
         start = time.perf_counter()
@@ -137,7 +137,6 @@ def main():
         inference_time = (time.perf_counter() - start) * 1000
 
         # Display result
-        #seg_map = np.reshape(seg_map, (height, width)).astype(np.uint8)
         seg_image = label_util.label_to_color_image(COLORMAP, seg_map)
         seg_image = cv2.resize(seg_image, (w, h))
         im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) // 2 + seg_image // 2
