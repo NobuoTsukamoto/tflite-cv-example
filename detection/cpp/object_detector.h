@@ -11,7 +11,10 @@
 #include <chrono>
 #include <memory>
 #include <string>
+
+#ifdef ENABEL_EDGETPU_DELEGATE
 #include "edgetpu.h"
+#endif
 
 #include <tensorflow/lite/interpreter.h>
 #include <tensorflow/lite/kernels/register.h>
@@ -35,13 +38,15 @@ class ObjectDetector
 {
 public:
     ObjectDetector(const float score_threshold);
+    ~ObjectDetector();
 
     bool BuildInterpreter(
         const std::string& model_path,
         const unsigned int num_of_threads = 1);
 
     std::unique_ptr<std::vector<BoundingBox>> RunInference(
-        const std::vector<uint8_t>& input_data,
+        const unsigned char* const input,
+        const size_t in_size,
         std::chrono::duration<double, std::milli>& time_span);
 
     const int Width() const;
@@ -51,8 +56,12 @@ public:
 private:
     std::unique_ptr<tflite::FlatBufferModel> model_;
     tflite::ops::builtin::BuiltinOpResolver* resolver_;
-    std::shared_ptr<edgetpu::EdgeTpuContext> edgetpu_context_; 
     std::unique_ptr<tflite::Interpreter> interpreter_;
+    TfLiteDelegate* delegate_ = nullptr;
+
+#ifdef ENABLE_EDGETPU
+    std::shared_ptr<edgetpu::EdgeTpuContext> edgetpu_context_; 
+#endif
 
     TfLiteTensor* output_locations_ = nullptr;
     TfLiteTensor* output_classes_ = nullptr;

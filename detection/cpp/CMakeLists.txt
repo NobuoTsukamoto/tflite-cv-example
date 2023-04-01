@@ -1,8 +1,7 @@
 # cmake needs this line
 cmake_minimum_required(VERSION 3.1)
-# cmake_minimum_required(VERSION 2.8)
 
-# Enable C++11
+# Enable C++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
@@ -18,6 +17,12 @@ set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -lstdc++")
 set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
 set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
+
+option(ENABEL_EDGETPU_DELEGATE "Enabel EdgeTPU deleage" OFF)
+option(ENABEL_GPU_DELEGATE "Enabel GPU delegate" ON)
+if (ENABEL_GPU_DELEGATE)
+    set(TFLITE_ENABLE_GPU ON)
+endif()
 
 set(CMAKE_BUILD_TYPE release)
 # set(CMAKE_BUILD_TYPE debug)
@@ -50,13 +55,10 @@ EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE
 message(STATUS "Architecture: ${ARCHITECTURE}")
 
 # Link your application with Tensorflow Lite
-if( ${ARCHITECTURE} STREQUAL "armv7l" )
-    target_link_libraries(tflite_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../../tensorflow/tensorflow/lite/tools/make/gen/rpi_armv7l/lib/libtensorflow-lite.a)
-    target_link_libraries(tflite_detection LINK_PRIVATE /usr/lib/arm-linux-gnueabihf/libedgetpu.so.1)
-else()
-    target_link_libraries(tflite_detection LINK_PRIVATE ${CMAKE_SOURCE_DIR}/../../tensorflow/tensorflow/lite/tools/make/gen/linux_aarch64/lib/libtensorflow-lite.a)
+if (ENABEL_EDGETPU_DELEGATE)
     target_link_libraries(tflite_detection LINK_PRIVATE /usr/lib/aarch64-linux-gnu/libedgetpu.so.1)
 endif()
+
 
 
 # target_link_libraries(tflite_detection Threads::Threads)
@@ -71,7 +73,18 @@ if(LIBDL)
   target_link_libraries(tflite_detection LINK_PRIVATE ${LIBDL})
 endif()
 
+add_subdirectory(
+  "${CMAKE_SOURCE_DIR}/../../tensorflow/tensorflow/lite"
+  "${CMAKE_CURRENT_BINARY_DIR}/tensorflow-lite"
+  EXCLUDE_FROM_ALL
+)
+
+target_link_libraries(tflite_detection LINK_PRIVATE tensorflow-lite)
+
 target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR})
-target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/../../libedgetpu/tflite/public)
 target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/../../tensorflow/)
 target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/../../tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)
+
+if (ENABEL_EDGETPU_DELEGATE)
+    target_include_directories(tflite_detection PUBLIC ${CMAKE_SOURCE_DIR}/../../libedgetpu/tflite/public)
+endif()

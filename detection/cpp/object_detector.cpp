@@ -9,13 +9,23 @@
 #include <chrono>
 #include <vector>
 
-#include <edgetpu.h>
+#include <tensorflow/lite/delegates/gpu/delegate.h>
 
 #include "object_detector.h"
 
 ObjectDetector::ObjectDetector(const float score_threshold)
     : score_threshold_(score_threshold)
 {
+}
+
+ObjectDetector::~ObjectDetector()
+{
+    // Clean up delegate.
+    if (delegate_)
+    {
+        std::cout << "Cleanup GPU delegate." << std::endl;
+        TfLiteGpuDelegateV2Delete(delegate_);
+    }
 }
 
 bool ObjectDetector::BuildInterpreter(
@@ -58,7 +68,13 @@ bool ObjectDetector::BuildInterpreterInternal(
     
     // Build interpreter
     tflite::ops::builtin::BuiltinOpResolver resolver;
-    if (tflite::InterpreterBuilder(*model_, resolver)(&interpreter_) != kTfLiteOk) {
+    tflite::InterpreterBuilder interpreter_builder(*model_, resolver);
+
+    // Prepare GPU delegate.
+    delegate_ = TfLiteGpuDelegateV2Create(/*default options=*/nullptr);
+    interpreter_builder.AddDelegate(delegate_);
+
+    if (interpreter_builder(&interpreter_) != kTfLiteOk) {
         std::cerr << "Failed to build interpreter." << std::endl;
         return false;
     }
@@ -78,6 +94,8 @@ bool ObjectDetector::BuildInterpreterInternal(
     input_width_ = dimensions->data[2];
     input_channels_ = dimensions->data[3];
 
+    std::cout << "width: " << input_width_ << ", height: " << input_height_ << ", channel: " << input_channels_ << std::endl;
+
     // Get output tensor
     output_locations_ = interpreter_->tensor(interpreter_->outputs()[0]);
     output_classes_ = interpreter_->tensor(interpreter_->outputs()[1]);
@@ -91,6 +109,7 @@ bool ObjectDetector::BuildEdgeTpuInterpreterInternal(
     std::string model_path,
     const unsigned int num_of_threads)
 {
+#ifdef ENABEL_EDGETPU_DELEGATE
     std::cout << "Build EdgeTpu Interpreter." << model_path << std::endl;
 
     //  Create the EdgeTpuContext.
@@ -149,10 +168,14 @@ bool ObjectDetector::BuildEdgeTpuInterpreterInternal(
     num_detections_ = interpreter_->tensor(interpreter_->outputs()[3]);
 
     return true;
+#else
+    return false;
+#endif
 }
 
 std::unique_ptr<std::vector<BoundingBox>> ObjectDetector::RunInference(
-    const std::vector<uint8_t>& input_data,
+    const unsigned char* const input,
+    const size_t in_size,
     std::chrono::duration<double, std::milli>& time_span)
 {
     const auto& start_time = std::chrono::steady_clock::now();
@@ -202,8 +225,8 @@ std::unique_ptr<std::vector<BoundingBox>> ObjectDetector::RunInference(
 
 */
     std::vector<float> output_data;
-    uint8_t* input = interpreter_->typed_input_tensor<uint8_t>(0);
-    std::memcpy(input, input_data.data(), input_data.size());
+    float* input_ptr = interpreter_->typed_input_tensor<float_t>(0);
+    std::memcpy(input_ptr, input, in_size);
     
     interpreter_->Invoke();
 
@@ -234,7 +257,7 @@ std::unique_ptr<std::vector<BoundingBox>> ObjectDetector::RunInference(
             bounding_box->center_x = bounding_box->x + (bounding_box->width / 2.0f);
             bounding_box->center_y = bounding_box->y + (bounding_box->height / 2.0f);
 
-#if 0
+#if DEBUG
             std::cout << "class_id: " << bounding_box->class_id << std::endl;
             std::cout << "scores  : " << bounding_box->scores << std::endl;
             std::cout << "x       : " << bounding_box->x << std::endl;

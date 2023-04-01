@@ -110,6 +110,7 @@ int main(int argc, char* argv[]) try
     detector->BuildInterpreter(model_path, num_of_threads);
     auto width = detector->Width();
     auto height = detector->Height();
+    std::cout << "model input :" << height << ", " << width << std::endl;
 
     // Load label file
     auto labels = ReadLabelFile(label_path);
@@ -120,29 +121,39 @@ int main(int argc, char* argv[]) try
     cv::moveWindow(kWindowName, 100, 100);
 
     // Videocapture setting.
-    cv::VideoCapture cap(0);
-    auto cap_width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
-    auto cap_height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+    cv::VideoCapture cap(4);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    // auto cap_width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
+    // auto cap_height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+    auto cap_width = 640;
+    auto cap_height = 480;
 
-    std::cout << "Start capture." << " isOpened: " << std::boolalpha << cap.isOpened() << std::endl;
+    std::cout << "Start capture (" << cap_width << "," << cap_height << ")" << " isOpened: " << std::boolalpha << cap.isOpened() << std::endl;
 
     while(cap.isOpened())
     {
         const auto& start_time = std::chrono::steady_clock::now();
     
-        cv::Mat frame, input_im;
-        
+        cv::Mat frame, resized_im, input_im;
+
         cap >> frame;
+        if (frame.empty())
+        {
+            break;
+        }
 
         // Create input data.
-        // camera resolution  => input_im tensor size
-        cv::resize(frame, input_im, cv::Size(width, height));
-        std::vector<uint8_t> input_data(input_im.data, input_im.data + (input_im.cols * input_im.rows * input_im.elemSize()));
+        // camera resolution  => resize => bgr2rgb => input_im
+        cv::resize(frame, resized_im, cv::Size(width, height));
+        cv::cvtColor(resized_im, resized_im, cv::COLOR_BGR2RGB);
+        resized_im.convertTo(input_im, CV_32FC3);
+        // std::vector<float> input_data(input_im.data, input_im.data + (input_im.cols * input_im.rows * input_im.elemSize()));
 
         // Run inference.
         std::chrono::duration<double, std::milli> inference_time_span;
 
-        const auto& result = detector->RunInference(input_data, inference_time_span);
+        const auto& result = detector->RunInference(input_im.data, input_im.total() * input_im.elemSize(), inference_time_span);
 
         for (const auto& object : *result)
         {
