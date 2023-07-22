@@ -93,6 +93,7 @@ bool ObjectDetector::BuildInterpreterInternal(
     input_height_ = dimensions->data[1];
     input_width_ = dimensions->data[2];
     input_channels_ = dimensions->data[3];
+    input_type_ = interpreter_->tensor(interpreter_->inputs()[0])->type;
 
     std::cout << "width: " << input_width_ << ", height: " << input_height_ << ", channel: " << input_channels_ << std::endl;
 
@@ -146,7 +147,7 @@ bool ObjectDetector::BuildEdgeTpuInterpreterInternal(
     input_height_ = dimensions->data[1];
     input_width_ = dimensions->data[2];
     input_channels_ = dimensions->data[3];
-
+    input_type_ = interpreter_->tensor(interpreter_->inputs()[0])->type;
  
     input_tensor_shape.resize(dimensions->size);
     for (auto i = 0; i < dimensions->size; i++)
@@ -174,59 +175,21 @@ bool ObjectDetector::BuildEdgeTpuInterpreterInternal(
 }
 
 std::unique_ptr<std::vector<BoundingBox>> ObjectDetector::RunInference(
-    const unsigned char* const input,
-    const size_t in_size,
+    const cv::Mat& input,
     std::chrono::duration<double, std::milli>& time_span)
 {
     const auto& start_time = std::chrono::steady_clock::now();
-/*
-    const int input_tensor_index = interpreter_->inputs()[0];
-    const TfLiteTensor* input_tensor = interpreter_->tensor(input_tensor_index);
-    const TfLiteType input_type = input_tensor->type;
-    const char* input_name = input_tensor->name;
-    std::vector<int> input_dims(
-        input_tensor->dims->data,
-        input_tensor->dims->data + input_tensor->dims->size);
 
-    if (input_tensor->quantization.type == kTfLiteNoQuantization)
-    {
-        std::cout << "Deal with legacy model with old quantization parameters." << std::endl;
-        interpreter_ ->SetTensorParametersReadOnly(
-            input_tensor_index,
-            input_type,
-            input_name,
-            input_dims,
-            input_tensor->params,
-            reinterpret_cast<const char*>(input_data.data()),
-            std::min(input_data.size(), input_array_size));
-    }
-    else
-    {
-        std::cout << "For models with new quantization parameters, deep copy the parameters." << std::endl;
-
-        TfLiteQuantization input_quant_clone = input_tensor->quantization;
-        const TfLiteAffineQuantization* input_quant_params = reinterpret_cast<TfLiteAffineQuantization*>(
-            input_tensor->quantization.params);
-        // |input_quant_params_clone| will be owned by |input_quant_clone|, and will
-        // be deallocated by free(). Therefore malloc is used to allocate its
-        // memory here.
-        TfLiteAffineQuantization* input_quant_params_clone = reinterpret_cast<TfLiteAffineQuantization*>(
-            malloc(sizeof(TfLiteAffineQuantization)));
-        input_quant_params_clone->scale = TfLiteFloatArrayCopy(input_quant_params->scale);
-        input_quant_params_clone->zero_point = TfLiteIntArrayCopy(input_quant_params->zero_point);
-        input_quant_params_clone->quantized_dimension = input_quant_params->quantized_dimension;
-        input_quant_clone.params = input_quant_params_clone;
-        interpreter_->SetTensorParametersReadOnly(
-            input_tensor_index, input_type, input_name,
-            input_dims, input_quant_clone,
-            reinterpret_cast<const char*>(input_data.data()),
-            std::min(input_data.size(), input_array_size));
-    }
-
-*/
     std::vector<float> output_data;
-    float* input_ptr = interpreter_->typed_input_tensor<float_t>(0);
-    std::memcpy(input_ptr, input, in_size);
+    cv::Mat convert_mat;
+
+    if (input_type_ == kTfLiteFloat32)
+    {
+        input.convertTo(convert_mat, CV_32FC3);
+        float* input_ptr = interpreter_->typed_input_tensor<float_t>(0);
+        std::memcpy(input_ptr, convert_mat.data, convert_mat.total() * convert_mat.elemSize());
+    }
+
     
     interpreter_->Invoke();
 
@@ -292,6 +255,11 @@ const int ObjectDetector::Channels() const
     return input_channels_;
 }
 
+const TfLiteType ObjectDetector::InputType() const
+{
+    return input_type_;
+}
+
 float* ObjectDetector::GetTensorData(TfLiteTensor& tensor, const int index)
 {
     float* result = nullptr;
@@ -311,12 +279,4 @@ float* ObjectDetector::GetTensorData(TfLiteTensor& tensor, const int index)
         break;
     }
     return result;
-}
-
-TfLiteFloatArray* ObjectDetector::TfLiteFloatArrayCopy(const TfLiteFloatArray* src)
-{
-    TfLiteFloatArray* ret = static_cast<TfLiteFloatArray*>(malloc(TfLiteFloatArrayGetSizeInBytes(src->size)));
-    ret->size = src->size;
-    std::memcpy(ret->data, src->data, src->size * sizeof(float));
-    return ret;
 }

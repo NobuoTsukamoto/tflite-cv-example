@@ -124,10 +124,8 @@ int main(int argc, char* argv[]) try
     cv::VideoCapture cap(4);
     cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-    // auto cap_width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
-    // auto cap_height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
-    auto cap_width = 640;
-    auto cap_height = 480;
+    auto cap_width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
+    auto cap_height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
 
     std::cout << "Start capture (" << cap_width << "," << cap_height << ")" << " isOpened: " << std::boolalpha << cap.isOpened() << std::endl;
 
@@ -147,8 +145,6 @@ int main(int argc, char* argv[]) try
         // camera resolution  => resize => bgr2rgb => input_im
         cv::resize(frame, resized_im, cv::Size(width, height));
         cv::cvtColor(resized_im, resized_im, cv::COLOR_BGR2RGB);
-        resized_im.convertTo(input_im, CV_32FC3);
-        // std::vector<float> input_data(input_im.data, input_im.data + (input_im.cols * input_im.rows * input_im.elemSize()));
 
         // Run inference.
         std::chrono::duration<double, std::milli> inference_time_span;

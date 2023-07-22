@@ -16,6 +16,8 @@
 #include "edgetpu.h"
 #endif
 
+#include <opencv2/opencv.hpp>
+
 #include <tensorflow/lite/interpreter.h>
 #include <tensorflow/lite/kernels/register.h>
 #include <tensorflow/lite/model.h>
@@ -45,8 +47,7 @@ public:
         const unsigned int num_of_threads = 1);
 
     std::unique_ptr<std::vector<BoundingBox>> RunInference(
-        const unsigned char* const input,
-        const size_t in_size,
+        const cv::Mat& input,
         std::chrono::duration<double, std::milli>& time_span);
 
     const int Width() const;
@@ -73,6 +74,7 @@ private:
     int input_width_ = 0;
     int input_height_ = 0;
     int input_channels_ = 0;
+    TfLiteType input_type_ = kTfLiteFloat32;
 
     std::vector<int> input_tensor_shape;
     size_t input_array_size = 1;

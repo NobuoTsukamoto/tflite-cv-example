@@ -3,3 +3,7 @@ __pycache__
 *.tflite
 *.o
 *.o.d
+*.png
+*.jpg
+*.onnx
+.vscode
