@@ -71,6 +71,7 @@ bool CenterNetDetector::BuildInterpreterInternal(
     input_height_ = dimensions->data[1];
     input_width_ = dimensions->data[2];
     input_channels_ = dimensions->data[3];
+    input_type_ = interpreter_->tensor(interpreter_->inputs()[0])->type;
 
     std::cout << "width: " << input_width_ << ", height: " << input_height_ << ", channel: " << input_channels_ << std::endl;
 
@@ -219,10 +220,3 @@ auto CenterNetDetector::TensorSize(const TfLiteTensor& tensor)
     return result;
 }
 
-TfLiteFloatArray* CenterNetDetector::TfLiteFloatArrayCopy(const TfLiteFloatArray* src)
-{
-    TfLiteFloatArray* ret = static_cast<TfLiteFloatArray*>(malloc(TfLiteFloatArrayGetSizeInBytes(src->size)));
-    ret->size = src->size;
-    std::memcpy(ret->data, src->data, src->size * sizeof(float));
-    return ret;
-}

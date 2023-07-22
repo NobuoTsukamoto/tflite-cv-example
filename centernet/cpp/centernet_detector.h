@@ -86,8 +86,6 @@ private:
 
     float* GetTensorData(TfLiteTensor& tensor, const int index = 0);
 
-    TfLiteFloatArray* TfLiteFloatArrayCopy(const TfLiteFloatArray* src);
-
     auto TensorSize(const TfLiteTensor& tensor);
 };
 
