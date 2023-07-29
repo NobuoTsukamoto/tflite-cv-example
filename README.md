@@ -25,7 +25,7 @@ TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux)
 |![detection](detection/g3doc/img/output.gif)|![camouflage](camouflage/g3doc/img/output.gif)|![deeplab](deeplab/g3doc/img/output.gif)|
 
 
-|Segmentation|Camouflage|YOLOX|
+|Segmentation|CenterNet|YOLOX|
 |:--:|:--:|:--:|
 |![segmentation](segmentation/g3doc/segmentation.gif)|![centernet](centernet/g3doc/img/centernet.gif)|![yolox](yolox/g3doc/yolox.gif)|
 
