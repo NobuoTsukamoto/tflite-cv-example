@@ -22,15 +22,19 @@
 
 #include "utils.h"
 
-std::vector<float> RunInference(const std::vector<uint8_t> &input_data,
+std::vector<float> RunInference(const cv::Mat& input,
                                 tflite::Interpreter *interpreter,
                                 std::chrono::duration<double, std::milli> &time_span)
 {
     const auto &start_time = std::chrono::steady_clock::now();
 
     std::vector<float> output_data;
-    uint8_t *input = interpreter->typed_input_tensor<uint8_t>(0);
-    std::memcpy(input, input_data.data(), input_data.size());
+    cv::Mat convert_mat;
+    input.convertTo(convert_mat, CV_32FC3);
+    convert_mat -= 127.5;
+    convert_mat /= 127.5;
+    float* input_ptr = interpreter->typed_input_tensor<float_t>(0);
+    std::memcpy(input_ptr, convert_mat.data, convert_mat.total() * convert_mat.elemSize());
 
     interpreter->Invoke();
 
@@ -155,16 +159,14 @@ int main(int argc, char *argv[])
         cap >> frame;
 
         // Create input data.
-        cv::resize(frame, input_im, cv::Size(input_tensor_shape[1], input_tensor_shape[2]));
+        cv::resize(frame, input_im, cv::Size(1024, 512));
         cv::cvtColor(input_im, input_im, cv::COLOR_BGR2RGB);
-        std::vector<uint8_t> input_data(input_im.data,
-                                        input_im.data + (input_im.cols * input_im.rows * input_im.elemSize()));
 
         // Run inference.
-        const auto &result = RunInference(input_data, model_interpreter.get(), inference_time_span);
+        const auto &result = RunInference(input_im, model_interpreter.get(), inference_time_span);
 
         // Create segmantation map.
-        cv::Mat seg_im(cv::Size(input_tensor_shape[1], input_tensor_shape[2]), CV_8UC3);
+        cv::Mat seg_im(cv::Size(1024, 512), CV_8UC3);
         LabelToColorMap(result, *color_map.get(), seg_im);
 
         // output tensor size => camera resolution
