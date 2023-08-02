@@ -22,7 +22,7 @@
 
 #include "utils.h"
 
-std::vector<float> RunInference(const cv::Mat& input,
+std::vector<float> RunInference(const cv::Mat &input,
                                 tflite::Interpreter *interpreter,
                                 std::chrono::duration<double, std::milli> &time_span)
 {
@@ -33,7 +33,7 @@ std::vector<float> RunInference(const cv::Mat& input,
     input.convertTo(convert_mat, CV_32FC3);
     convert_mat -= 127.5;
     convert_mat /= 127.5;
-    float* input_ptr = interpreter->typed_input_tensor<float_t>(0);
+    float *input_ptr = interpreter->typed_input_tensor<float_t>(0);
     std::memcpy(input_ptr, convert_mat.data, convert_mat.total() * convert_mat.elemSize());
 
     interpreter->Invoke();
@@ -41,6 +41,7 @@ std::vector<float> RunInference(const cv::Mat& input,
     const auto &output_indices = interpreter->outputs();
     const int num_outputs = output_indices.size();
     int out_idx = 0;
+
     for (int i = 0; i < num_outputs; ++i)
     {
         const auto *out_tensor = interpreter->tensor(output_indices[i]);
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
     cv::moveWindow(window_name, 100, 100);
 
     // Initialize Colormap.
-    auto color_map = CreatePascalLabelColormap();
+    auto color_map = CreateCityscapesLabelColormap();
 
     // Set up InterpreterBuilder.
     std::unique_ptr<tflite::FlatBufferModel> model = tflite::FlatBufferModel::BuildFromFile(model_path.c_str());
@@ -111,13 +112,16 @@ int main(int argc, char *argv[])
     // Prepare GPU delegate.
     auto *delegate = TfLiteGpuDelegateV2Create(/*default options=*/nullptr);
     interpreter_builder.AddDelegate(delegate);
-    if (interpreter_builder(&model_interpreter) != kTfLiteOk) {
+
+    if (interpreter_builder(&model_interpreter) != kTfLiteOk)
+    {
         std::cerr << "Failed to build interpreter." << std::endl;
         return false;
     }
 
     // Bind given context with interpreter.
-    if (model_interpreter->AllocateTensors() != kTfLiteOk) {
+    if (model_interpreter->AllocateTensors() != kTfLiteOk)
+    {
         std::cerr << "Failed to allocate tensors." << std::endl;
         return false;
     }
@@ -133,6 +137,8 @@ int main(int argc, char *argv[])
         input_tensor_shape[i] = dimensions->data[i];
         input_array_size *= input_tensor_shape[i];
     }
+    auto input_height = input_tensor_shape[1];
+    auto input_width = input_tensor_shape[2];
 
     std::ostringstream input_string_stream;
     std::copy(input_tensor_shape.begin(), input_tensor_shape.end(), std::ostream_iterator<int>(input_string_stream, " "));
@@ -159,18 +165,18 @@ int main(int argc, char *argv[])
         cap >> frame;
 
         // Create input data.
-        cv::resize(frame, input_im, cv::Size(1024, 512));
+        cv::resize(frame, input_im, cv::Size(input_width, input_height));
         cv::cvtColor(input_im, input_im, cv::COLOR_BGR2RGB);
 
         // Run inference.
         const auto &result = RunInference(input_im, model_interpreter.get(), inference_time_span);
 
         // Create segmantation map.
-        cv::Mat seg_im(cv::Size(1024, 512), CV_8UC3);
+        cv::Mat seg_im(cv::Size(input_width, input_height), CV_8UC3);
         LabelToColorMap(result, *color_map.get(), seg_im);
 
         // output tensor size => camera resolution
-        cv::resize(seg_im, seg_im, cv::Size(frame.cols, frame.rows));
+        cv::resize(frame, frame, cv::Size(seg_im.cols, seg_im.rows));
         seg_im = (frame / 2) + (seg_im / 2);
 
         std::chrono::duration<double, std::milli> time_span = std::chrono::steady_clock::now() - start_time;

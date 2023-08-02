@@ -11,168 +11,76 @@
 
 #include "utils.h"
 
-std::unique_ptr<std::vector<cv::Scalar>> CreatePascalLabelColormap()
+std::unique_ptr<std::vector<cv::Scalar>> CreateCityscapesLabelColormap()
 {
-  std::unique_ptr<std::vector<cv::Scalar>> color_map(new std::vector<cv::Scalar>);
-  unsigned char ind[256] = {0};
+    std::unique_ptr<std::vector<cv::Scalar>> color_map(new std::vector<cv::Scalar>);
 
-  // initialize
-  for (auto i = 0; i < 256; i++)
-  {
-    color_map->emplace_back(cv::Scalar(0, 0, 0));
-    ind[i] = i;
-  }
+    int cityscapes_color_map[][3] = {
+    	{128,  64, 128},
+        {244,  35, 232},
+        { 70,  70,  70},
+        {102, 102, 156},
+        {190, 153, 153},
+        {153, 153, 153},
+        {250, 170,  30},
+        {220, 220,   0},
+        {107, 142,  35},
+        {152, 251, 152},
+        { 70, 130, 180},
+        {220,  20,  60},
+	    {255,   0,   0},
+        {  0,   0, 142},
+        {  0,   0,  70},
+        {  0,  60, 100},
+        {  0,  80, 100}, 
+        {  0,   0, 230},
+	    {119,  11,  32},
+        {  0,   0,   0},
 
-  // create color map
-  for (auto shift = 7; shift >= 0; shift--)
-  {
-    for (auto& e : *color_map.get())
+    };
+
+    // initialize
+    for (auto i = 0; i < 19; i++)
     {
-      auto index {&e - &*color_map.get()->begin()};
-
-      for (auto channel = 0; channel < 3; channel++)
-      {
-        unsigned char color = (unsigned char)e[channel];
-        color |= ((ind[index] >> channel) & 1) << shift;
-        e[channel] = (double)color;
-      }
-
+        color_map->emplace_back(cv::Scalar(cityscapes_color_map[i][0], cityscapes_color_map[i][1], cityscapes_color_map[i][2]));
     }
 
-    for (auto& i : ind)
+    return color_map;
+}
+
+
+void DrawCaption(cv::Mat &im, const cv::Point &point, const std::string &caption)
+{
+    cv::putText(im, caption, point, cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 0), 1);
+    cv::putText(im, caption, point, cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(255, 255, 255), 1);
+}
+
+double CalcAverage(const std::vector<double> &array)
+{
+    auto avg = 0.0;
+    for (const auto &e : array)
     {
-      i >>= 3;
+        avg += e;
     }
-  }
-
-  return color_map;
+    return (avg / array.size());
 }
 
-void DrawCaption(cv::Mat& im, const cv::Point& point, const std::string& caption)
+void LabelToColorMap(const std::vector<float> &result,
+                     const std::vector<cv::Scalar> &color_map,
+                     cv::Mat &seg_im)
 {
-  cv::putText(im, caption, point, cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 0), 1);
-  cv::putText(im, caption, point, cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(255, 255, 255), 1);
-}
-
-double CalcAverage(const std::vector<double>& array)
-{
-  auto avg = 0.0;
-  for (const auto& e : array)
-  {
-    avg += e;
-  }
-  return (avg / array.size());
-}
-
-void LabelToColorMap(const std::vector<float>& result,
-                     const std::vector<cv::Scalar>& color_map,
-                     cv::Mat& seg_im)
-{
-  for (int y = 0; y < seg_im.rows; y++)
-  {
-    cv::Vec3b *src = &seg_im.at<cv::Vec3b>(y, 0);
-    for (int x = 0; x < seg_im.cols; x++)
+    for (auto y = 0; y < seg_im.rows; y++)
     {
-      auto label = (int)result[(seg_im.rows * y) + x];
-      auto color = color_map.at(label);
-      (*src)[0] = color[0];
-      (*src)[1] = color[1];
-      (*src)[2] = color[2];
-      src++;
+        for (auto x = 0; x < seg_im.cols; x++)
+        {
+            cv::Vec3b *src = &seg_im.at<cv::Vec3b>(y, x);
+            auto label = (int)result[(y * seg_im.cols) + x];
+            auto color = color_map.at(label);
+            (*src)[0] = color[0];
+            (*src)[1] = color[1];
+            (*src)[2] = color[2];
+        }
     }
-  }
-  cv::cvtColor(seg_im, seg_im, cv::COLOR_RGB2BGR);
+    cv::cvtColor(seg_im, seg_im, cv::COLOR_RGB2BGR);
 }
 
-void LabelMaskImage(const std::vector<float>& result,
-                const int input_label,
-                const cv::Mat& input_im,
-                cv::Mat& mask_im)
-{
-  for (int y = 0; y < mask_im.rows; y++)
-  {
-    auto *src = &mask_im.at<unsigned char>(y, 0);
-    for (int x = 0; x < mask_im.cols; x++)
-    {
-      auto label = (int)result[(mask_im.rows * y) + x];
-      if (label == input_label)
-      {
-        *src = 255;
-      }
-      src++;
-    }
-  }
-}
-
-void LabelMaskColorImage(const std::vector<float>& result,
-                const int input_label,
-                const cv::Mat& input_im,
-                cv::Mat& mask_im)
-{
-  cv::Scalar color(255, 0, 0);
-
-  for (int y = 0; y < mask_im.rows; y++)
-  {
-    cv::Vec3b *src = &mask_im.at<cv::Vec3b>(y, 0);
-    for (int x = 0; x < mask_im.cols; x++)
-    {
-      auto label = (int)result[(mask_im.rows * y) + x];
-      if (label == input_label)
-      {
-        (*src)[0] = color[0];
-        (*src)[1] = color[1];
-        (*src)[2] = color[2];
-      }
-      src++;
-    }
-  }
-}
-
-void RandamMaskImage(const std::vector<float>& result,
-                     const int input_label,
-                     const cv::Mat& input_im,
-                     cv::RNG& rng,
-                     cv::Mat& randam_im,
-                     cv::Mat& mask_im)
-{
-  for (int y = 0; y < mask_im.rows; y++)
-  {
-    auto *mask = &mask_im.at<unsigned char>(y, 0);
-    auto *randam = &randam_im.at<cv::Vec4b>(y, 0);
-    for (int x = 0; x < mask_im.cols; x++)
-    {
-      auto label = (int)result[(mask_im.rows * y) + x];
-      if (label == input_label)
-      {
-        *mask = 255;
-        (*randam)[0] = rng.uniform(0, 255);
-        (*randam)[1] = rng.uniform(0, 255);
-        (*randam)[2] = rng.uniform(0, 255);
-      }
-      mask++;
-      randam++;
-    }
-  }
-}
-
-bool IsLabelInResult(const std::vector<float>& result,
-                     const int input_label,
-                     const int width,
-                     const int height)
-{
-  auto is_label = false;
-
-  for (auto y = 0; y < height; y++)
-  {
-    for (auto x = 0; x < width; x++)
-    {
-      auto label = (int)result[((height - 1) * y) + x];
-      if (label == input_label)
-      {
-        is_label = true;
-        break;
-      }
-    }
-  }
-  return is_label;
-}
