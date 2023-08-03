@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     std::cout << "Input  : " << input_video_path << std::endl;
 
     // Window setting
-    auto window_name = "FFNet TensorFlow Lite GPU DelegateEdge Demo.";
+    auto window_name = "FFNet TensorFlow Lite GPU Delegate Demo.";
     cv::namedWindow(window_name,
                     cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE | cv::WINDOW_KEEPRATIO);
     cv::moveWindow(window_name, 100, 100);
@@ -165,7 +165,8 @@ int main(int argc, char *argv[])
         cap >> frame;
 
         // Create input data.
-        cv::resize(frame, input_im, cv::Size(input_width, input_height));
+	input_im = frame.clone();
+        cv::resize(input_im, input_im, cv::Size(input_width, input_height));
         cv::cvtColor(input_im, input_im, cv::COLOR_BGR2RGB);
 
         // Run inference.
@@ -177,6 +178,7 @@ int main(int argc, char *argv[])
 
         // output tensor size => camera resolution
         cv::resize(frame, frame, cv::Size(seg_im.cols, seg_im.rows));
+        cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
         seg_im = (frame / 2) + (seg_im / 2);
 
         std::chrono::duration<double, std::milli> time_span = std::chrono::steady_clock::now() - start_time;
