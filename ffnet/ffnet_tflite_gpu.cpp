@@ -74,7 +74,8 @@ int main(int argc, char *argv[])
     const cv::String keys =
         "{help h ? |    | show help command.}"
         "{m model  |    | path to deeplab tf-lite model flie.}"
-        "{v video  |    | video file path.}";
+        "{v video  |    | video file path.}"
+        "{o output |    | output video file path.}";
 
     cv::CommandLineParser parser(argc, argv, keys);
     if (parser.has("help"))
@@ -85,9 +86,11 @@ int main(int argc, char *argv[])
 
     auto model_path = parser.get<std::string>("model");
     auto input_video_path = parser.get<std::string>("video");
+    auto output_path = parser.get<cv::String>("output");
 
     std::cout << "Model  : " << model_path << std::endl;
     std::cout << "Input  : " << input_video_path << std::endl;
+    std::cout << "Output : " << output_path << std::endl;
 
     // Window setting
     auto window_name = "FFNet TensorFlow Lite GPU Delegate Demo.";
@@ -149,8 +152,18 @@ int main(int argc, char *argv[])
     // videocapture setting.
     cv::VideoCapture cap(input_video_path, cv::CAP_FFMPEG);
 
+    auto cap_fps = cap.get(cv::CAP_PROP_FPS);
     std::cout << "Start capture."
               << " isOpened: " << std::boolalpha << cap.isOpened() << std::endl;
+
+
+    // Videowriter setting.
+    cv::VideoWriter writer;
+    if (!output_path.empty())
+    {
+        auto fourcc = cv::VideoWriter::fourcc('M', 'P', '4', 'V');
+        writer.open(output_path, fourcc, cap_fps, cv::Size(input_width, input_height), true);
+    }
 
     // video capture.
     std::vector<double> inference_fps;
@@ -163,9 +176,13 @@ int main(int argc, char *argv[])
         cv::Mat frame, input_im, output_im, output_im2;
 
         cap >> frame;
+	if (frame.empty())
+        {
+            break;
+        }
 
         // Create input data.
-	input_im = frame.clone();
+         input_im = frame.clone();
         cv::resize(input_im, input_im, cv::Size(input_width, input_height));
         cv::cvtColor(input_im, input_im, cv::COLOR_BGR2RGB);
 
@@ -198,13 +215,19 @@ int main(int argc, char *argv[])
         fps_string.str("");
         inference_fps.emplace_back(1000.0 / inference_time_span.count());
 
-        fps_string << std::fixed << std::setprecision(2) << inference_time_span.count() << "ms, Inference FPS: " << inference_fps.back();
+        fps_string << "Inference " << std::fixed << std::setprecision(2) << inference_time_span.count() << "ms, FPS: " << inference_fps.back();
         if (inference_fps.size() > 100)
         {
             inference_fps.erase(inference_fps.begin());
             fps_string << " (AVG: " << CalcAverage(inference_fps) << ")";
         }
         DrawCaption(seg_im, cv::Point(10, 60), fps_string.str());
+
+        // Output file.
+        if (writer.isOpened())
+        {
+            writer.write(seg_im);
+        }
 
         // Display image.
         cv::imshow(window_name, seg_im);
@@ -218,6 +241,7 @@ int main(int argc, char *argv[])
 
     // Clean up.
     TfLiteGpuDelegateV2Delete(delegate);
+    writer.release();
     cv::destroyAllWindows();
 
     return 0;
