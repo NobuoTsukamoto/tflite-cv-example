@@ -221,6 +221,12 @@ int main(int argc, char* argv[]) try
         time_caption << ", " << 1000.0 / time_span.count() << "FPS";
         DrawCaption(frame, cv::Point(10, 60), time_caption.str());
 
+        // Output file.
+        if (writer.isOpened())
+        {
+            writer.write(frame);
+        }
+
         cv::imshow(kWindowName, frame);
         // Handle the keyboard before moving to the next frame
         const int key = cv::waitKey(1);
@@ -230,6 +236,11 @@ int main(int argc, char* argv[]) try
         }
 
     }
+
+    // Clean up.
+    writer.release();
+    cv::destroyAllWindows();
+
     return EXIT_SUCCESS;
 
 }
