@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <numeric>
 
 #include <opencv2/opencv.hpp>
 
@@ -20,6 +21,8 @@ const cv::String kKeys =
     "{n thread       |2   | num of thread to set tf-lite interpreter.}"
     "{s score        |0.5 | score threshold.}"
     "{l label        |.   | path to label file.}"
+    "{o output       |    | file path of output videofile.}"
+    "{v videopath    |    | file path of videofile.}"
     "{@input         |    | path to tf-lite model file.}"
     ;
 
@@ -85,6 +88,8 @@ int main(int argc, char* argv[]) try
     auto num_of_threads = parser.get<unsigned int>("thread");
     auto score_threshold = parser.get<float>("score");
     auto label_path = parser.get<cv::String>("label");
+    auto video_path = parser.get<cv::String>("videopath");
+    auto output_path = parser.get<cv::String>("output");
     if (parser.has("@input"))
     {
         model_path = parser.get<cv::String>("@input");
@@ -102,7 +107,8 @@ int main(int argc, char* argv[]) try
     std::cout << "label path      : " << label_path << std::endl;
     std::cout << "threads         : " << num_of_threads << std::endl;
     std::cout << "score threshold : " << score_threshold << std::endl;
-
+    std::cout << "video path      : " << video_path << std::endl;
+    std::cout << "output path     : " << output_path << std::endl;
 
     // Create Object detector
     auto detector = std::make_unique<ObjectDetector>(score_threshold);
@@ -121,14 +127,35 @@ int main(int argc, char* argv[]) try
     cv::moveWindow(kWindowName, 100, 100);
 
     // Videocapture setting.
-    cv::VideoCapture cap(4);
-    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    cv::VideoCapture cap;
+     if (video_path.empty())
+    {
+        cap.open(0);
+        cap.set(cv::CAP_PROP_FRAME_WIDTH, (double)640);
+        cap.set(cv::CAP_PROP_FRAME_HEIGHT, (double)480);
+    }
+    else
+    {
+        cap.open(video_path);
+    }
     auto cap_width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
     auto cap_height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+    auto cap_fps = cap.get(cv::CAP_PROP_FPS);
 
-    std::cout << "Start capture (" << cap_width << "," << cap_height << ")" << " isOpened: " << std::boolalpha << cap.isOpened() << std::endl;
+    std::cout << "Start capture."
+              << " isOpened: " << std::boolalpha << cap.isOpened() << std::endl;
+    std::cout << "VideoCapture Width: " << cap_width << ", Height: " << cap_height << ", FPS: " << cap_fps << std::endl;
 
+    // Videowriter setting.
+    cv::VideoWriter writer;
+    if (!output_path.empty())
+    {
+        auto fourcc = cv::VideoWriter::fourcc('M', 'P', '4', 'V');
+        writer.open(output_path, fourcc, cap_fps, cv::Size(cap_width, cap_height), true);
+    }
+
+    std::list<double> inference_times;
+    
     while(cap.isOpened())
     {
         const auto& start_time = std::chrono::steady_clock::now();
@@ -144,12 +171,12 @@ int main(int argc, char* argv[]) try
         // Create input data.
         // camera resolution  => resize => bgr2rgb => input_im
         cv::resize(frame, resized_im, cv::Size(width, height));
-        cv::cvtColor(resized_im, resized_im, cv::COLOR_BGR2RGB);
+        cv::cvtColor(resized_im, input_im, cv::COLOR_BGR2RGB);
 
         // Run inference.
         std::chrono::duration<double, std::milli> inference_time_span;
 
-        const auto& result = detector->RunInference(input_im.data, input_im.total() * input_im.elemSize(), inference_time_span);
+        const auto& result = detector->RunInference(input_im, inference_time_span);
 
         for (const auto& object : *result)
         {
@@ -181,7 +208,17 @@ int main(int argc, char* argv[]) try
         std::chrono::duration<double, std::milli> time_span = std::chrono::steady_clock::now() - start_time;
         std::ostringstream time_caption;
 
-        time_caption << std::fixed << std::setprecision(2) << inference_time_span.count() << " ms, " << 1000.0 / time_span.count() << "FPS";
+        time_caption << std::fixed << std::setprecision(2) << inference_time_span.count() << "ms";
+
+        inference_times.emplace_back(inference_time_span.count());
+        if (inference_times.size() > 100)
+        {
+            inference_times.pop_front();
+            double average = std::accumulate(inference_times.begin(), inference_times.end(), 0.0) / inference_times.size();
+
+            time_caption << " (avg: " << average << "ms)";
+        }
+        time_caption << ", " << 1000.0 / time_span.count() << "FPS";
         DrawCaption(frame, cv::Point(10, 60), time_caption.str());
 
         cv::imshow(kWindowName, frame);

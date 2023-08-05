@@ -87,6 +87,8 @@ private:
 
     TfLiteFloatArray* TfLiteFloatArrayCopy(const TfLiteFloatArray* src);
 
+    const TfLiteType InputType() const;
+
 };
 
 #endif /* OBJECT_DETECTOR_H_ */

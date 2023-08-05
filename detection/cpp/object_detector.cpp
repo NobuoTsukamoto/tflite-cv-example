@@ -186,11 +186,13 @@ std::unique_ptr<std::vector<BoundingBox>> ObjectDetector::RunInference(
     if (input_type_ == kTfLiteFloat32)
     {
         input.convertTo(convert_mat, CV_32FC3);
+        // convert_mat /= 255.0;
+        convert_mat -= 127.5;
+        convert_mat /= 127.5;
         float* input_ptr = interpreter_->typed_input_tensor<float_t>(0);
         std::memcpy(input_ptr, convert_mat.data, convert_mat.total() * convert_mat.elemSize());
     }
 
-    
     interpreter_->Invoke();
 
     const float* locations = GetTensorData(*output_locations_);

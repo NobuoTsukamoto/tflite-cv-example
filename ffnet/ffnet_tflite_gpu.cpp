@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
         }
 
         // Create input data.
-         input_im = frame.clone();
+        input_im = frame.clone();
         cv::resize(input_im, input_im, cv::Size(input_width, input_height));
         cv::cvtColor(input_im, input_im, cv::COLOR_BGR2RGB);
 
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
         // output tensor size => camera resolution
         cv::resize(frame, frame, cv::Size(seg_im.cols, seg_im.rows));
-        cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
+        // cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
         seg_im = (frame / 2) + (seg_im / 2);
 
         std::chrono::duration<double, std::milli> time_span = std::chrono::steady_clock::now() - start_time;
