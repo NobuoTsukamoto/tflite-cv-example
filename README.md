@@ -16,6 +16,7 @@ TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux)
 | [Super resolution](super_resolution) | Python | Super resolution using ESRGAN. | TF-Lite | Linux<br>Windows |
 | [YOLOX](yolox/python) | Python | YOLOX with TensorFlow Lite. | TF-Lite | Linux<br>Windows |
 | [DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU](deeplab_edgetpu2) | Python | DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU with TensorFlow Lite. | TF-Lite<br>EdgeTPU | Linux<br>Windows |
+| [FFNet ](FFNet) | C++ | VisionFive 2 TensorFlow Lite GPU Delegate FFNet | TF-Lite<br>GPU delegate | Linux |
 
 
 ## Images
@@ -30,14 +31,15 @@ TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux)
 |![segmentation](segmentation/g3doc/segmentation.gif)|![centernet](centernet/g3doc/img/centernet.gif)|![yolox](yolox/g3doc/yolox.gif)|
 
 
-|DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU|
-|:--:|
-|YouTube Link<br>[![](https://img.youtube.com/vi/-F9R51vFOS8/mqdefault.jpg)](https://www.youtube.com/watch?v=-F9R51vFOS8)|
+|DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU| VisionFive 2 TensorFlow Lite GPU Delegate<br>FFNet46NS CCC Mobile Pre-Down Fused-Argmax | VisionFive 2 TensorFlow Lite GPU Delegate<br>EfficientDet-Lite0 |
+|:--:|:--:|:--:|
+|YouTube Link<br>[![](https://img.youtube.com/vi/-F9R51vFOS8/mqdefault.jpg)](https://www.youtube.com/watch?v=-F9R51vFOS8)|YouTube Link<br>[![](https://img.youtube.com/vi/QDNdEaW8Z8U/mqdefault.jpg)](https://www.youtube.com/watch?v=QDNdEaW8Z8U)|YouTube Link<br>[![](https://img.youtube.com/vi/1SAccRvKuFM/mqdefault.jpg)](https://www.youtube.com/watch?v=1SAccRvKuFM)|
 
 ## Environment
 - Coral Edge TPU USB Accelerator
 - Raspberry Pi (3 B+ / 4) + PiCamera or UVC Camera
 - Dev Board
+- VisionFive 2
 - x64 PC(Windows or Linux) + Video file or UVC Camera
 - Python3
 
