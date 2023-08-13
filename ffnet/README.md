@@ -34,3 +34,8 @@ $ ./ffnet_tflite_gpu \
   --video=_PATH_TO_INPUT_VIDEO_FILE_ \
   --output=_PATH_TO_OUTPUT_VIDEO_FILE_
 ```
+
+## Refferince
+- [FFNet: Simple and Efficient Architectures for Semantic Segmentation](https://github.com/Qualcomm-AI-research/FFNet)
+- [PINTO_model_zoo](https://github.com/PINTO0309/PINTO_model_zoo)
+- [onnx2tf](https://github.com/PINTO0309/onnx2tf)
