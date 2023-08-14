@@ -1,7 +1,10 @@
-# TensorFlow Lite, Coral Edge TPU samples.
+# TensorFlow Lite samples.
 
 ## About
-TensorFlow Lite, Coral Edge TPU samples (Python/C++, Raspberry Pi/Windows/Linux).
+TensorFlow Lite samples (Python/C++, Raspberry Pi/VisionFive 2/Windows/Linux).
+ - CPU(XNNPACK) inference
+ - Coral Edge TPU Delegate
+ - GPU Delegate 
 
 ## List of samples.
 
