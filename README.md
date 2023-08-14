@@ -19,7 +19,7 @@ TensorFlow Lite samples (Python/C++, Raspberry Pi/VisionFive 2/Windows/Linux).
 | [Super resolution](super_resolution) | Python | Super resolution using ESRGAN. | TF-Lite | Linux<br>Windows |
 | [YOLOX](yolox/python) | Python | YOLOX with TensorFlow Lite. | TF-Lite | Linux<br>Windows |
 | [DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU](deeplab_edgetpu2) | Python | DeepLab V3+ EdgeTPUV2 and AutoSeg EdgeTPU with TensorFlow Lite. | TF-Lite<br>EdgeTPU | Linux<br>Windows |
-| [FFNet ](FFNet) | C++ | VisionFive 2 TensorFlow Lite GPU Delegate FFNet | TF-Lite<br>GPU delegate | Linux |
+| [FFNet ](ffnet) | C++ | VisionFive 2 TensorFlow Lite GPU Delegate FFNet | TF-Lite<br>GPU delegate | Linux |
 
 
 ## Images
