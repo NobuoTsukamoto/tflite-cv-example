@@ -199,7 +199,7 @@ std::unique_ptr<std::vector<BoundingBox>> ObjectDetector::RunInference(
     const float* classes = GetTensorData(*output_classes_);
     const float* scores = GetTensorData(*output_scores_);
     const int num_detections = (int)*GetTensorData(*num_detections_);
-    
+
     auto results = std::make_unique<std::vector<BoundingBox>>();
 
     for (auto i = 0; i < num_detections; i++)
@@ -212,7 +212,6 @@ std::unique_ptr<std::vector<BoundingBox>> ObjectDetector::RunInference(
             auto y1 = locations[4 * i + 2];
             auto x1 = locations[4 * i + 3];
 
-            
             bounding_box->class_id = (int)classes[i];
             bounding_box->scores = scores[i];
             bounding_box->x = x0;

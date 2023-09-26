@@ -48,7 +48,7 @@ std::unique_ptr<std::map<long, std::string>> ReadLabelFile(const std::string& la
                 std::cout << "Expect 2-D input label (" << result.size() << ")." << std::endl;
                 continue;
             }
-             
+
             auto label_string = result[2];
             for (size_t i = 3; i < result.size(); i++)
             {
