@@ -7,7 +7,7 @@
 
 ### Clone repository and init submodule.
 ```
-$ git clone https://github.com/NobuoTsukamoto/v.git
+$ git clone https://github.com/NobuoTsukamoto/tflite-cv-example.git
 $ cd tflite-cv-example
 $ git submodule update --init --recursive
 ```
